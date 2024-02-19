@@ -88,7 +88,7 @@ class App:
 
         return self.entry
     
-    def create_optionmenu(self, vals, cmd):
+    def create_optionmenu(self, vals, cmd=None):
         self.optionmenu_var = StringVar(value=vals[0])
         self.optionmenu = CTkOptionMenu(master=self.frame_1,
                                           width=220,
