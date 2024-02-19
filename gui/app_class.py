@@ -66,13 +66,13 @@ class App:
         self.fig, self.ax = self.create_plot()
         
         self.optionmenu_1 = self.create_optionmenu(["Карта", "Граф видимости", "Расширенная карта", "Диаграмма Вороного", "Клеточная декомпозиция"],
-                                                   self.optionmenu_callback
+                                                   self.optionmenu_1_callback
                                                    )
         
         self.optionmenu_1.grid(row=4, column=0, columnspan=4, pady=10, padx=10)
 
         self.optionmenu_2 = self.create_optionmenu(["Алгоритм жука", "Реактивный алгоритм жука", "А*", "Алгоритм Дейкстры", "Че-то воронового"],
-                                                   self.optionmenu_callback
+                                                #    self.optionmenu_callback
                                                    )
         
         self.optionmenu_2.grid(row=6, column=0, columnspan=4, pady=10, padx=10)
@@ -100,8 +100,17 @@ class App:
         return self.optionmenu
         
     
-    def optionmenu_callback(self, choice):
-        print("optionmenu dropdown clicked:", choice)
+    def optionmenu_1_callback(self, choice):
+        combs = {
+                "Карта": ["Алгоритм жука", "Реактивный алгоритм жука"],
+                "Расширенная карта": ["Алгоритм жука", "Реактивный алгоритм жука"],
+                "Граф видимости": ["А*", "Алгоритм Дейкстры"],
+                "Диаграмма Вороного": ["Че-то воронового"],
+                "Клеточная декомпозиция": ["А*", "Алгоритм Дейкстры"]
+                }
+        
+        self.optionmenu_var1 = StringVar(value=combs[choice][0])
+        self.optionmenu_2.configure(values=combs[choice], variable=self.optionmenu_var1)
 
     
     def create_label(self, text=''):
