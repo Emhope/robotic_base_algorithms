@@ -1,4 +1,3 @@
-from gui.app_class import App
+from app_class import App
 
 App()
-# p
