@@ -107,28 +107,6 @@ def _union_frames(coordinates, lidar, step=0.01):
     return map
 
 
-def _timer(func):
-
-    def wrapp(*args, **kwargs):
-        s = time.perf_counter()
-        res = func(*args, **kwargs)
-        print(f'{time.perf_counter() - s} s.')
-        return res    
-    return wrapp
-
-
-def _save_res(func, test_name='test.jpg'):
-
-    def wrapp(*args, **kwargs):
-        res = func(*args, **kwargs)
-        cv2.imwrite(test_name, res)
-        return res
-    
-    return wrapp
-
-
-@_timer
-@_save_res
 def create_map(fname):
     coordinates, lidar = _parse_lidar(fname)
     img = _union_frames(coordinates, lidar)

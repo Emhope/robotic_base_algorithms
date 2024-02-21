@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from  customtkinter import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+import map_tools
 
 
 WIDTH = 1080
@@ -158,9 +159,14 @@ class App:
         return fig, ax
     
     def button_upload_map_callback(self):
-        '''
-        вставить функцию по обработке данных лидара
-        '''
         file_path = filedialog.askopenfilename(initialdir='./raw_data/',
                                title='Select a file')
+        map = map_tools.create_map(file_path)
+        
+        self.ax.clear()
+        self.ax.imshow(map)
+        self.canvas.draw()
+
+        
+        
                       
