@@ -43,7 +43,7 @@ def _calculate_session(pos, lidar_data):
     return [x, y] 
 
 
-def _union_frames(coordinates, lidar):
+def _union_frames_bad_ver(coordinates, lidar):
     res = None
 
     for i in range(coordinates.shape[0]):
@@ -81,6 +81,31 @@ def _union_frames(coordinates, lidar):
 
     return res
 
+def _union_frames(coordinates, lidar, step=0.01):
+
+    step = 0.01
+    points_all = [np.array([]), np.array([])]
+    for i in range(coordinates.shape[0]):
+        points_session = _calculate_session(coordinates[i], lidar[i])
+        points_all[0] = np.concatenate((points_all[0], points_session[0]))
+        points_all[1] = np.concatenate((points_all[1], points_session[1]))
+
+    points_all = np.round(np.array(points_all)/step).astype(int)
+    points_all[0] -= np.min(points_all[0])
+    points_all[1] -= np.min(points_all[1])
+
+    x_shape = -np.min(points_all[0]) + np.max(points_all[0])
+    y_shape = -np.min(points_all[1]) + np.max(points_all[1])
+
+    map = np.zeros((y_shape+1, x_shape+1), dtype=np.uint8)
+    for i in range(points_all.shape[1]):
+        map[points_all[1][i], points_all[0][i]] = 255
+    map = cv2.blur(map, (11, 11))
+    thresh = 100
+    map[map > thresh] = 255
+    map[map <= thresh] = 0
+    return map
+
 
 def _timer(func):
 
@@ -101,7 +126,9 @@ def _save_res(func, test_name='test.jpg'):
     
     return wrapp
 
+
 @_timer
+@_save_res
 def create_map(fname):
     coordinates, lidar = _parse_lidar(fname)
     img = _union_frames(coordinates, lidar)
