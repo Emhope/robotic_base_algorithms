@@ -102,10 +102,7 @@ def _save_res(func, test_name='test.jpg'):
     return wrapp
 
 @_timer
-@_save_res
 def create_map(fname):
     coordinates, lidar = _parse_lidar(fname)
     img = _union_frames(coordinates, lidar)
     return img
-
-create_map('raw_data/examp17.txt')
