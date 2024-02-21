@@ -54,28 +54,28 @@ class App:
         self.label_3 = self.create_label('Выберите алгоритм')
         self.label_3.grid(row=5, column=0, columnspan=4, pady=10, padx=10, sticky=W)
 
-        self.button_1 = self.create_button('Показать', self.button_callback)
-        self.button_1.grid(row=4, column=4, pady=10, padx=10)
+        self.button_show = self.create_button('Показать', self.button_show_callback)
+        self.button_show.grid(row=4, column=4, pady=10, padx=10)
 
-        self.button_2 = self.create_button('Построить путь', self.button_callback)
-        self.button_2.grid(row=6, column=4, pady=10, padx=10)
+        self.button_create_path = self.create_button('Построить путь', self.button_create_path_callback)
+        self.button_create_path.grid(row=6, column=4, pady=10, padx=10)
 
-        self.button_3 = self.create_button('Загрузить карту', self.button_callback)
-        self.button_3.grid(row=1, column=4, pady=10, padx=10)
+        self.button_upload_map = self.create_button('Загрузить карту', self.button_upload_map_callback)
+        self.button_upload_map.grid(row=1, column=4, pady=10, padx=10)
 
         self.fig, self.ax = self.create_plot()
         
-        self.optionmenu_1 = self.create_optionmenu(["Карта", "Граф видимости", "Расширенная карта", "Диаграмма Вороного", "Клеточная декомпозиция"],
-                                                   self.optionmenu_1_callback
+        self.optionmenu_map = self.create_optionmenu(["Карта", "Граф видимости", "Расширенная карта", "Диаграмма Вороного", "Клеточная декомпозиция"],
+                                                   self.optionmenu_map_callback
                                                    )
         
-        self.optionmenu_1.grid(row=4, column=0, columnspan=4, pady=10, padx=10)
+        self.optionmenu_map.grid(row=4, column=0, columnspan=4, pady=10, padx=10)
 
-        self.optionmenu_2 = self.create_optionmenu(["Алгоритм жука", "Реактивный алгоритм жука", "А*", "Алгоритм Дейкстры", "Че-то воронового"],
-                                                #    self.optionmenu_callback
+        self.optionmenu_algorithm = self.create_optionmenu(["Алгоритм жука", "Реактивный алгоритм жука", "А*", "Алгоритм Дейкстры", "Че-то воронового"],
+                                                   self.optionmenu_algorithm_callback
                                                    )
         
-        self.optionmenu_2.grid(row=6, column=0, columnspan=4, pady=10, padx=10)
+        self.optionmenu_algorithm.grid(row=6, column=0, columnspan=4, pady=10, padx=10)
 
 
     def create_entry(self):
@@ -100,7 +100,7 @@ class App:
         return self.optionmenu
         
     
-    def optionmenu_1_callback(self, choice):
+    def optionmenu_map_callback(self, choice):
         combs = {
                 "Карта": ["Алгоритм жука", "Реактивный алгоритм жука"],
                 "Расширенная карта": ["Алгоритм жука", "Реактивный алгоритм жука"],
@@ -110,9 +110,13 @@ class App:
                 }
         
         self.optionmenu_var1 = StringVar(value=combs[choice][0])
-        self.optionmenu_2.configure(values=combs[choice], variable=self.optionmenu_var1)
+        self.optionmenu_algorithm.configure(values=combs[choice], variable=self.optionmenu_var1)
 
     
+    def optionmenu_algorithm_callback(self):
+        ...
+        
+
     def create_label(self, text=''):
         self.label = CTkLabel(master=self.frame_1,
                               text=text,
@@ -129,8 +133,12 @@ class App:
         
         return self.button
 
-    def button_callback(self):
-        print("Button click")
+    def button_show_callback(self):
+        ...
+
+    def button_create_path_callback(self):
+        ...
+    
 
     def create_plot(self):
 
@@ -149,7 +157,10 @@ class App:
 
         return fig, ax
     
-    def upload(self):
+    def button_upload_map_callback(self):
         '''
         вставить функцию по обработке данных лидара
         '''
+        file_path = filedialog.askopenfilename(initialdir='./raw_data/',
+                               title='Select a file')
+                      
