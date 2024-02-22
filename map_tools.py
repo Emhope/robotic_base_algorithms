@@ -110,10 +110,8 @@ def _union_frames(coordinates, lidar, step=0.01):
     map = utils.minkowski(map, 5)
     return map
 
-@info_decorators._save_res
+
 def create_map(fname):
     coordinates, lidar = _parse_lidar(fname)
     img = _union_frames(coordinates, lidar, config.step)
     return img
-
-create_map('raw_data/examp7.txt')

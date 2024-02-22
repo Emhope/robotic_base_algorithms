@@ -166,7 +166,3 @@ class App:
         self.ax.clear()
         self.ax.imshow(map)
         self.canvas.draw()
-
-        
-        
-                      
