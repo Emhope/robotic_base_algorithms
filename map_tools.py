@@ -3,6 +3,9 @@ import numpy as np
 import cv2
 import os
 import time
+import info_decorators
+import config
+import utils
 
 
 def _parse_lidar(fname):
@@ -100,14 +103,17 @@ def _union_frames(coordinates, lidar, step=0.01):
     map = np.zeros((y_shape+1, x_shape+1), dtype=np.uint8)
     for i in range(points_all.shape[1]):
         map[points_all[1][i], points_all[0][i]] = 255
-    map = cv2.blur(map, (11, 11))
-    thresh = 100
+    map = cv2.blur(map, (13, 13))
+    thresh = 50
     map[map > thresh] = 255
     map[map <= thresh] = 0
+    map = utils.minkowski(map, 5)
     return map
 
-
+@info_decorators._save_res
 def create_map(fname):
     coordinates, lidar = _parse_lidar(fname)
-    img = _union_frames(coordinates, lidar)
+    img = _union_frames(coordinates, lidar, config.step)
     return img
+
+create_map('raw_data/examp7.txt')

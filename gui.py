@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from  customtkinter import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import map_tools
-
+import config
 
 WIDTH = 1080
 HEIGHT = 600
