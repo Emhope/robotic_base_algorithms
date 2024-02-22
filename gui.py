@@ -159,10 +159,10 @@ class App:
         return fig, ax
     
     def button_upload_map_callback(self):
-        file_path = filedialog.askopenfilename(initialdir='./raw_data/',
+        file_path = filedialog.askopenfilename(initialdir='../raw_data/',
                                title='Select a file')
         map = map_tools.create_map(file_path)
         
         self.ax.clear()
-        self.ax.imshow(map)
+        self.ax.imshow(map, cmap='gray')
         self.canvas.draw()
