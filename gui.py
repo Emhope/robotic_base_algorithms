@@ -3,6 +3,7 @@ from  customtkinter import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import map_tools
 import config
+from utils import minkowski
 
 WIDTH = 1080
 HEIGHT = 600
@@ -114,7 +115,7 @@ class App:
         self.optionmenu_algorithm.configure(values=combs[choice], variable=self.optionmenu_var1)
 
     
-    def optionmenu_algorithm_callback(self):
+    def optionmenu_algorithm_callback(self, choice):
         ...
         
 
@@ -135,10 +136,47 @@ class App:
         return self.button
 
     def button_show_callback(self):
-        ...
+        current_value = self.optionmenu_map.get()
+        values = ["Карта", 
+                  "Граф видимости", 
+                  "Расширенная карта", 
+                  "Диаграмма Вороного", 
+                  "Клеточная декомпозиция"
+                  ]
+        
+        if current_value == values[0]:
+            self.draw_map(self.map)
+        elif current_value == values[1]:
+            pass
+        elif current_value == values[2]:
+            shape = 10
+            map_minkowski = minkowski(self.map, shape)
+            self.draw_map(map_minkowski)
+        elif current_value == values[3]:
+            pass
+        else:
+            pass
+        
 
     def button_create_path_callback(self):
-        ...
+        current_value = self.optionmenu_algorithm.get()
+        values = ["Алгоритм жука", 
+                  "Реактивный алгоритм жука", 
+                  "А*", 
+                  "Алгоритм Дейкстры", 
+                  "Че-то воронового"
+                  ]
+        
+        if current_value == values[0]:
+            pass
+        elif current_value == values[1]:
+            pass
+        elif current_value == values[2]:
+            pass
+        elif current_value == values[3]:
+            pass
+        else:
+           pass
     
 
     def create_plot(self):
@@ -161,8 +199,25 @@ class App:
     def button_upload_map_callback(self):
         file_path = filedialog.askopenfilename(initialdir='../raw_data/',
                                title='Select a file')
-        map = map_tools.create_map(file_path)
+        self.map = map_tools.create_map(file_path)
+        self.draw_map(self.map)
         
+
+    def draw_map(self, map):
+        ''''
+        отрисовка карты
+        '''
         self.ax.clear()
         self.ax.imshow(map, cmap='gray')
         self.canvas.draw()
+
+
+    def get_entry_values(self):
+        '''
+        получаем координаты начала и конца в виде кортежа (x,y)
+        '''
+        start = (int(self.entry_x0.get()), int(self.entry_y0.get()))
+        end = (int(self.entry_x1.get()), int(self.entry_y1.get()))
+
+        return start, end
+
