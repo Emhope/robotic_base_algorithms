@@ -1,7 +1,3 @@
-import numpy as np
-import cv2
-
-
 def create_ceil_graph(img, step):
     arr = img[(step // 2)::step, (step // 2)::step]
     graph = {}
