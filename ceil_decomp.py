@@ -1,3 +1,5 @@
+import numpy as np
+
 def create_ceil_graph_2d(img, step):
     arr = img[(step // 2)::step, (step // 2)::step]
     graph = {}
@@ -11,12 +13,12 @@ def create_ceil_graph_2d(img, step):
                             continue
                         if 0 <= y + _y < arr.shape[0] and 0 <= x + _x < arr.shape[1] \
                             and arr[y + _y, x + _x] == 0:
-                            neighbors.append((x + _x, y + _y))
+                            neighbors.append((x + _x, y + _y, np.sqrt(_x**2 + _y**2)))  # ребра = эвклидово расстояние
                 graph[(x, y)] = neighbors
     return graph
 
 def create_ceil_graph_3d(img, step):
-    arr = img[(step // 2)::step, (step // 2)::step, (step // 2)::step]
+    arr = img[(step // 2)::step, (step // 2)::step]
     graph = {}
     for y in range(arr.shape[0]):
         for x in range(arr.shape[1]):
@@ -30,6 +32,6 @@ def create_ceil_graph_3d(img, step):
                                     continue
                                 if 0 <= y + _y < arr.shape[0] and 0 <= x + _x < arr.shape[1] \
                                     and 0 <= w + _w < arr.shape[2] and arr[y + _y, x + _x, w + _w] == 0:
-                                        neighbors.append((x + _x, y + _y, w + _w))
+                                        neighbors.append(((x + _x, y + _y, w + _w), np.sqrt(_x**2 + _y**2 + _w**2))) # ребра = эвклидово расстояние
                     graph[(x, y, w)] = neighbors
     return graph
