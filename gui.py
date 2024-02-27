@@ -151,9 +151,9 @@ class App:
         plt.rc('ytick', labelsize=8)            
                 
         self.canvas = FigureCanvasTkAgg(fig, self.frame_2)
-        self.canvas.draw()          
+        self.canvas.draw()
         toolbar = NavigationToolbar2Tk(self.canvas, self.frame_2)
-        toolbar.update()              
+        toolbar.update()
         self.canvas.get_tk_widget().pack(fill='both', expand=True)
 
         return fig, ax
@@ -164,5 +164,5 @@ class App:
         map = map_tools.create_map(file_path)
         
         self.ax.clear()
-        self.ax.imshow(map, cmap='gray')
+        self.ax.imshow(~map.astype(bool), cmap='gray')
         self.canvas.draw()
