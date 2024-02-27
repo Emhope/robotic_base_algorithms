@@ -94,7 +94,7 @@ def smooth_map_blur(ormap, thresh=50, blur_kernel_shape=13, minkovski_shape=5):
     return map
 
 
-def smooth_map_med(map, med_shape=11, min_shape=2):
+def smooth_map_med(map, med_shape=15, min_shape=4):
     return cv2.medianBlur(utils.minkowski(map, min_shape), med_shape)
 
 
@@ -120,9 +120,8 @@ def _union_frames(coordinates, lidar, step=0.01):
     return map
 
 
-def create_map(fname, smooth=None):
+@info_decorators._save_res
+def create_map(fname):
     coordinates, lidar = _parse_lidar(fname)
     img = _union_frames(coordinates, lidar, config.step)
-    if smooth is not None:
-        return smooth(img)
-    return img
+    return smooth_map_med(img)

@@ -4,6 +4,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 import map_tools
 import config
 from utils import minkowski
+from graph_plotters import plotters as show_actions
+from routers import routers as route_actions
 
 WIDTH = 1080
 HEIGHT = 600
@@ -67,7 +69,7 @@ class App:
 
         self.fig, self.ax = self.create_plot()
         
-        self.optionmenu_map = self.create_optionmenu(["Карта", "Граф видимости", "Расширенная карта", "Диаграмма Вороного", "Клеточная декомпозиция"],
+        self.optionmenu_map = self.create_optionmenu(list(show_actions.keys()),
                                                    self.optionmenu_map_callback
                                                    )
         
@@ -107,7 +109,7 @@ class App:
                 "Карта": ["Алгоритм жука", "Реактивный алгоритм жука"],
                 "Расширенная карта": ["Алгоритм жука", "Реактивный алгоритм жука"],
                 "Граф видимости": ["А*", "Алгоритм Дейкстры"],
-                "Диаграмма Вороного": ["Че-то воронового"],
+                "Диаграмма Вороного": ["А*", "Алгоритм Дейкстры"],
                 "Клеточная декомпозиция": ["А*", "Алгоритм Дейкстры"]
                 }
         
@@ -136,47 +138,26 @@ class App:
         return self.button
 
     def button_show_callback(self):
-        current_value = self.optionmenu_map.get()
-        values = ["Карта", 
-                  "Граф видимости", 
-                  "Расширенная карта", 
-                  "Диаграмма Вороного", 
-                  "Клеточная декомпозиция"
-                  ]
-        
-        if current_value == values[0]:
-            self.draw_map(self.map)
-        elif current_value == values[1]:
-            pass
-        elif current_value == values[2]:
-            shape = 10
-            map_minkowski = minkowski(self.map, shape)
-            self.draw_map(map_minkowski)
-        elif current_value == values[3]:
-            pass
-        else:
-            pass
+        action = self.optionmenu_map.get()
+        g, map = show_actions[action](self.ax, self.map)
+        if g is not None:
+            self.g = g
+        if map is not None:
+            self.map = map
+        self.ax.imshow(self.map)
+        self.canvas.draw()
         
 
     def button_create_path_callback(self):
         current_value = self.optionmenu_algorithm.get()
-        values = ["Алгоритм жука", 
-                  "Реактивный алгоритм жука", 
-                  "А*", 
-                  "Алгоритм Дейкстры", 
-                  "Че-то воронового"
-                  ]
-        
-        if current_value == values[0]:
-            pass
-        elif current_value == values[1]:
-            pass
-        elif current_value == values[2]:
-            pass
-        elif current_value == values[3]:
-            pass
-        else:
-           pass
+        start = (int(self.entry_x0.get()), int(self.entry_y0.get()))
+        goal = (int(self.entry_x1.get()), int(self.entry_y1.get()))
+        g, path = route_actions[current_value](self.g, start, goal)
+
+        self.ax.clear()
+        self.ax.imshow(self.map)
+        g.draw_graph(self.ax)
+        self.canvas.draw()
     
 
     def create_plot(self):
@@ -200,15 +181,15 @@ class App:
         file_path = filedialog.askopenfilename(initialdir='../raw_data/',
                                title='Select a file')
         self.map = map_tools.create_map(file_path)
-        self.draw_map(self.map)
+        self.draw_map()
         
 
-    def draw_map(self, map):
+    def draw_map(self):
         ''''
         отрисовка карты
         '''
         self.ax.clear()
-        self.ax.imshow(~map.astype(bool), cmap='gray')
+        self.ax.imshow(~self.map.astype(bool), cmap='gray')
         self.canvas.draw()
 
 

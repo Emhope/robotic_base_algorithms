@@ -35,10 +35,45 @@ class Graph(dict):
     def draw_graph(self, ax=None):
         if ax is None:
             fig, ax = plt.subplots()
-        ax.xlim(0, 1000)
-        ax.ylim(0, 1000)
+        ax.set_xlim(0, 1000)
+        ax.set_ylim(0, 1000)
         for vert in self:
             for n in self[vert]:
                 ax.plot([vert[0], n[0][0]], [vert[1], n[0][1]], 'k', 10)
             ax.scatter(*vert, 100, 'b')
+    
+
+    def remove_vertex(self, vertex):
+        for n in self[vertex]:
+            self.remove_edge(vertex, n[0])
+        self.pop(vertex)
+
+
+    def remove_endpoint(self, endpoint):
+        if len(self[endpoint]) != 1:
+            raise ValueError(f'{endpoint} is not endpoint')
+        neighbor = self[endpoint][0][0]
+        self.remove_vertex(endpoint)
+        self.add_edge(self[neighbor][0][0], self[neighbor][1][0])
+        self.remove_vertex(neighbor)
+    
+    
+    def add_endpoint(self, new_p):
+        '''
+        adding goal or end point to graph
+        '''
+        lines = self.get_edges()
+        min_dist, point, line = np.inf, None, None
+        for l in lines:
+            d, p = utils.perp_intersection(l[0], l[1], new_p)
+            if 0 < d < min_dist:
+                min_dist = d
+                point = p
+                line = l
+        
+        if point is not None:
+            self.remove_edge(*line)
+            self.add_edge(line[0], point)
+            self.add_edge(line[1], point)
+            self.add_edge(new_p, point)
         
