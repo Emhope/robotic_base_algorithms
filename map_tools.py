@@ -84,6 +84,20 @@ def _union_frames_bad_ver(coordinates, lidar):
 
     return res
 
+
+def smooth_map_blur(ormap, thresh=50, blur_kernel_shape=13, minkovski_shape=5):
+    map = np.copy(ormap)
+    map = cv2.blur(map, (blur_kernel_shape, blur_kernel_shape))
+    map[map > thresh] = 255
+    map[map <= thresh] = 0
+    map = utils.minkowski(map, minkovski_shape)
+    return map
+
+
+def smooth_map_med(map, med_shape=15, min_shape=4):
+    return cv2.medianBlur(utils.minkowski(map, min_shape), med_shape)
+
+
 def _union_frames(coordinates, lidar, step=0.01):
 
     step = 0.01
@@ -103,15 +117,11 @@ def _union_frames(coordinates, lidar, step=0.01):
     map = np.zeros((y_shape+1, x_shape+1), dtype=np.uint8)
     for i in range(points_all.shape[1]):
         map[points_all[1][i], points_all[0][i]] = 255
-    map = cv2.blur(map, (13, 13))
-    thresh = 50
-    map[map > thresh] = 255
-    map[map <= thresh] = 0
-    map = utils.minkowski(map, 5)
     return map
 
 
+@info_decorators._save_res
 def create_map(fname):
     coordinates, lidar = _parse_lidar(fname)
     img = _union_frames(coordinates, lidar, config.step)
-    return img
+    return smooth_map_med(img)

@@ -17,6 +17,7 @@ def create_ceil_graph_2d(img, step):
                 graph[(x, y)] = neighbors
     return graph
 
+
 def create_ceil_graph_3d(img, step):
     graph = {}
     start = step // 2
