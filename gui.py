@@ -6,6 +6,8 @@ import config
 from utils import minkowski
 from graph_plotters import plotters as show_actions
 from routers import routers as route_actions
+from bug_test_ani_22222 import render_bug2
+
 
 WIDTH = 1080
 HEIGHT = 600
@@ -144,6 +146,7 @@ class App:
             self.g = g
         if map is not None:
             self.map = map
+
         self.ax.imshow(self.map)
         self.canvas.draw()
         
@@ -152,11 +155,14 @@ class App:
         current_value = self.optionmenu_algorithm.get()
         start = (int(self.entry_x0.get()), int(self.entry_y0.get()))
         goal = (int(self.entry_x1.get()), int(self.entry_y1.get()))
-        g, path = route_actions[current_value](self.g, start, goal)
+        # g, path = route_actions[current_value](self.g, start, goal)
 
         self.ax.clear()
-        self.ax.imshow(self.map)
-        g.draw_graph(self.ax)
+        # self.ax.imshow(self.map)
+        if current_value == "Алгоритм жука":
+            start_point, end_point = self.get_entry_values()
+            render_bug2(self.map, start_point, end_point, self.fig, self.ax, self.canvas)
+        # g.draw_graph(self.ax)
         self.canvas.draw()
     
 
