@@ -24,5 +24,6 @@ def create_config_space(map):
         rot_map = utils.fast_convolution(map, r)
         rot_map[rot_map>0] = 255
         configuration_space[i] = np.copy(rot_map)
+        configuration_space = configuration_space.astype(np.uint8)
     
     return configuration_space
