@@ -26,22 +26,10 @@ def find_angle(x_start, y_start, x_end, y_end):
 def check_obst(curr_pos, curr_angle, bin_map, angle, safe_dist=0.3):
     safe_dist /= config.step
     angle_point = math.radians(curr_angle + angle)
-    scan_range = 10
-    scan_step = scan_range // config.angle_step
-    is_obst = np.array([])
-
     y, x = -math.sin(angle_point) * safe_dist + curr_pos[0], math.cos(angle_point) * safe_dist + curr_pos[1]    
     rr, cc = line(*(int(curr_pos[0]), int(curr_pos[1])), *(round(y), round(x)))
-    
-    # for i in range(-scan_range // 2, scan_range // 2 + scan_step, scan_step):
-    #     y, x = -math.sin(angle_point + i) * safe_dist + curr_pos[0], math.cos(angle_point + i) * safe_dist + curr_pos[1]    
-    #     rr, cc = line(*(int(curr_pos[0]), int(curr_pos[1])), *(round(y), round(x)))
-    #     is_obst = np.append(is_obst, np.any(bin_map[rr, cc] == 255))
 
-    # print('is obst', is_obst)
-    # print('return np any', np.any(is_obst))
-
-    return np.any(bin_map[rr, cc] == 255) # np.any(is_obst)
+    return np.any(bin_map[rr, cc] == 255)
 
 
 def check_angle(angle):
@@ -78,14 +66,17 @@ def bug222(bin_map, start_point, end_point):
     forw_flag = False
     flag_turn = False
     flag_back = False
+    counter_right = 0
+    counter_left = 0
     # for i in range(1250):
     res = copy.copy(bin_map)
     res_arr = []
 
     while state != 'goal_reached':
-        # time.sleep(0.1)
+
         if state == 'follow mline':                       
             i = 0
+            safe_dist_right = 0.4
             if flag_back:
                 mline = mline[:, index:]
                 
@@ -139,14 +130,15 @@ def bug222(bin_map, start_point, end_point):
             curr_angle += config.angle_step
 
             if abs(curr_angle) > 360:
-                # safe_dist_right = 0.4
+                safe_dist_right = 0.5
                 curr_angle %= 360
+                counter_left += 1
 
             angles.append(curr_angle)
             curr_angle_conf = check_angle(curr_angle)
             # bin_map = config_space[int(curr_angle_conf // config.angle_step),: ,:]
            
-            if check_obst(curr_pos, curr_angle, bin_map, -90, safe_dist) and not check_obst(curr_pos, curr_angle, bin_map, 0, safe_dist): # or flag_turn
+            if check_obst(curr_pos, curr_angle, bin_map, -90, safe_dist_right) and not check_obst(curr_pos, curr_angle, bin_map, 0, safe_dist): # or flag_turn
                 state = 'follow obstacle'
             
         
@@ -154,8 +146,9 @@ def bug222(bin_map, start_point, end_point):
             curr_angle -= config.angle_step
 
             if abs(curr_angle) > 360:
-                safe_dist_right = 0.4
+                safe_dist_right = 0.5
                 curr_angle %= 360
+                counter_right += 1
                 # state = 'follow obstacle'
             
             angles.append(curr_angle)
@@ -171,6 +164,7 @@ def bug222(bin_map, start_point, end_point):
 
 
         elif state == 'follow obstacle': 
+            # safe_dist_right = 0.4
             y, x = -math.sin(math.radians(curr_angle)) + curr_pos[0], math.cos(math.radians(curr_angle)) + curr_pos[1] # *safe_dist
             rr, cc = line(*(curr_pos[0], curr_pos[1]), *(round(y), round(x)))   
  
@@ -201,12 +195,13 @@ def bug222(bin_map, start_point, end_point):
             index = list(mask).index(True)
             flag_back = True
 
+        if counter_right > 2 or counter_right > 2:
+            return path, bin_map, mline, res_arr
+
         res[path[0][-1], path[1][-1]] = 200
         res_arr.append(copy.copy(res))
             
     return path, bin_map, mline, res_arr
-    
-
 
 
 def render_bug2(bin_map, start_point, end_point, fig, ax, canvas, fps=120):

@@ -1,7 +1,8 @@
 import voronoi
 import numpy as np
 import config
-
+from config_space import create_config_space
+import copy
 
 plotters = dict()
 
@@ -26,17 +27,21 @@ def voronoi_show(ax, map):
     return g, None
 
 @add_plotter('Карта')
-def voronoi_show(ax, g):
-    ...
+def map_show(ax, map):
+    ax.clear()
+    return None, map
 
 @add_plotter('Граф видимости')
-def voronoi_show(ax, g):
+def visibiliy_graph_show(ax, g):
     ...
 
 @add_plotter('Расширенная карта')
-def voronoi_show(ax, g):
-    ...
+def minkowski_show(ax, map):
+    ax.clear()
+    config_space = create_config_space(copy.copy(map))
+    map = config_space[int(0),: ,:]
+    return None, map
 
 @add_plotter('Клеточная декомпозиция')
-def voronoi_show(ax, g):
+def cell_decomp_show(ax, g):
     ...

@@ -3,15 +3,13 @@ from  customtkinter import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import map_tools
 import config
+import cv2
 from utils import minkowski
 from graph_plotters import plotters as show_actions
 from routers import routers as route_actions
-<<<<<<< HEAD
-from bug_test_ani_22222 import render_bug2
+from bug_2 import render_bug2
 
-=======
 from cache import Cache
->>>>>>> 8dbc8cd5835d5557848da873d38e8f28e4130588
 
 WIDTH = 1080
 HEIGHT = 600
@@ -83,7 +81,7 @@ class App:
         
         self.optionmenu_map.grid(row=4, column=0, columnspan=4, pady=10, padx=10)
 
-        self.optionmenu_algorithm = self.create_optionmenu(["Алгоритм жука", "Реактивный алгоритм жука", "А*", "Алгоритм Дейкстры", "Че-то воронового"],
+        self.optionmenu_algorithm = self.create_optionmenu(["Алгоритм жука", "А*", "Алгоритм Дейкстры"],
                                                    self.optionmenu_algorithm_callback
                                                    )
         
@@ -114,8 +112,8 @@ class App:
     
     def optionmenu_map_callback(self, choice):
         combs = {
-                "Карта": ["Алгоритм жука", "Реактивный алгоритм жука"],
-                "Расширенная карта": ["Алгоритм жука", "Реактивный алгоритм жука"],
+                "Карта": ["Алгоритм жука"],
+                "Расширенная карта": [""],
                 "Граф видимости": ["А*", "Алгоритм Дейкстры"],
                 "Диаграмма Вороного": ["А*", "Алгоритм Дейкстры"],
                 "Клеточная декомпозиция": ["А*", "Алгоритм Дейкстры"]
@@ -153,24 +151,28 @@ class App:
         if map is not None:
             self.map = map
 
-        self.ax.imshow(self.map)
+        self.ax.imshow(~self.map, cmap='gray')
         self.canvas.draw()
         
 
     def button_create_path_callback(self):
         current_value = self.optionmenu_algorithm.get()
-        start = (int(self.entry_x0.get()), int(self.entry_y0.get()))
-        goal = (int(self.entry_x1.get()), int(self.entry_y1.get()))
         # g, path = route_actions[current_value](self.g, start, goal)
 
         self.ax.clear()
         # self.ax.imshow(self.map)
         if current_value == "Алгоритм жука":
             start_point, end_point = self.get_entry_values()
+            # cv2.imwrite('ex7.png', self.map)
             render_bug2(self.map, start_point, end_point, self.fig, self.ax, self.canvas)
         # g.draw_graph(self.ax)
         self.canvas.draw()
-    
+
+        if current_value == "А*":
+            ...
+        if current_value == "Алгоритм Дейкстры":
+            ...
+
 
     def create_plot(self):
 
@@ -203,7 +205,7 @@ class App:
         отрисовка карты
         '''
         self.ax.clear()
-        self.ax.imshow(~self.map.astype(bool), cmap='gray')
+        self.ax.imshow(self.map.astype(bool), cmap='gray')
         self.canvas.draw()
 
 
