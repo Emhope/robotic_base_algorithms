@@ -15,7 +15,7 @@ def obs_centers(map, thresh) -> np.ndarray:
         mask = r==i
         points = i_space[:, mask]
         obs_center = (np.sum(points, axis=1) / points.shape[1]).astype(int)
-        if mask[*obs_center] and points.shape[1] >= thresh:
+        if mask[obs_center[0], obs_center[1]] and points.shape[1] >= thresh:
             res.append(obs_center)
     
     return np.array(res)
