@@ -8,7 +8,7 @@ import utils
 from config import step, h, w, angle_step
 
 
-def _create_robot_rotates():
+def _create_robot_rotates(angle_step=10):
     robot_shape = np.array((int(h/step), int(w/step)))
     robot = np.ones(robot_shape)
     robot = np.pad(robot, int(abs(h-w)/step)+5)
@@ -17,7 +17,7 @@ def _create_robot_rotates():
 
 
 def create_config_space(map):
-    robot_rotates = _create_robot_rotates()
+    robot_rotates = _create_robot_rotates(angle_step=angle_step)
     configuration_space = np.zeros((len(robot_rotates),) + map.shape)
 
     for i, r in enumerate(robot_rotates):
