@@ -38,9 +38,9 @@ def _calculate_session(pos, lidar_data):
     
     angles = np.linspace(pos[2] + 2*np.pi/3, pos[2] - 2*np.pi/3, len(lidar_data))
 
-    x = np.array(lidar_data * np.cos(angles) + pos[0])
+    x = np.array(lidar_data * np.cos(angles) + pos[0] + 0.3 * np.cos(pos[2]))
     x = x[~np.isnan(x)]
-    y = np.array(lidar_data * np.sin(angles) + pos[1])
+    y = np.array(lidar_data * np.sin(angles) + pos[1] + 0.3 * np.sin(pos[2]))
     y = y[~np.isnan(y)]
     
     return [x, y] 
@@ -114,7 +114,7 @@ def _union_frames(coordinates, lidar, step=0.01):
     x_shape = -np.min(points_all[0]) + np.max(points_all[0])
     y_shape = -np.min(points_all[1]) + np.max(points_all[1])
 
-    map = np.zeros((y_shape+1, x_shape+1), dtype=np.uint8)
+    map = np.zeros((int(y_shape*1.2)+1, int(x_shape*1.2)+1), dtype=np.uint8)
     for i in range(points_all.shape[1]):
         map[points_all[1][i], points_all[0][i]] = 255
     return map

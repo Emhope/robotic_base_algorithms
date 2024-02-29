@@ -1,10 +1,17 @@
 import numpy as np
+from scipy.signal import convolve2d, fftconvolve
 
+def convolution(img, kernel, dtype=None):
+    res = convolve2d(img, kernel, mode='same')
+    if dtype is None:
+        res[res > 255] = 255
+        return res.astype(np.uint8)
+    return res.astype(dtype)
+    
 
-def convolution(img, kernel):
-    f = np.fft.fft2(img) * np.fft.fft2(kernel, s=img.shape)
-    res = np.real(np.fft.ifft2(f))
-    res[res > 255] = 255
+def fast_convolution(img, kernel):
+    res = fftconvolve(img, kernel, mode='same')
+    res[res>255] = 255
     return res.astype(np.uint8)
 
 
