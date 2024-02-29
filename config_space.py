@@ -21,7 +21,7 @@ def create_config_space(map):
     configuration_space = np.zeros((len(robot_rotates),) + map.shape)
 
     for i, r in enumerate(robot_rotates):
-        rot_map = utils.convolution(map, r)
+        rot_map = utils.fast_convolution(map, r)
         rot_map[rot_map>0] = 255
         configuration_space[i] = np.copy(rot_map)
     
