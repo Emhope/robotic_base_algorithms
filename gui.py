@@ -6,12 +6,8 @@ import config
 from utils import minkowski
 from graph_plotters import plotters as show_actions
 from routers import routers as route_actions
-<<<<<<< HEAD
-from bug_test_ani_22222 import render_bug2
+from bug_2 import render_bug2
 
-=======
-from cache import Cache
->>>>>>> 8dbc8cd5835d5557848da873d38e8f28e4130588
 
 WIDTH = 1080
 HEIGHT = 600
@@ -26,7 +22,6 @@ class App:
         self.root.title('Path planning')
         self.GUI()
         self.root.mainloop()
-        self.cache = Cache
 
 
     def GUI(self):
@@ -193,8 +188,8 @@ class App:
         file_path = filedialog.askopenfilename(initialdir='../raw_data/',
                                title='Select a file')
         self.map = map_tools.create_map(file_path)
-        self.cache = Cache()
-        self.cache.map = map
+        #self.cache = Cache()
+        #self.cache.map = map
         self.draw_map()
         
 

@@ -1,6 +1,7 @@
 import voronoi
 import numpy as np
 import config
+import ceil_decomp
 
 
 plotters = dict()
@@ -26,17 +27,16 @@ def voronoi_show(ax, map):
     return g, None
 
 @add_plotter('Карта')
-def voronoi_show(ax, g):
-    ...
+def map_show(ax, map):
+    ax.clear()
+    ax.imshow(map)
+    return None, map
 
 @add_plotter('Граф видимости')
-def voronoi_show(ax, g):
+def vis_g_show(ax, map):
     ...
 
-@add_plotter('Расширенная карта')
-def voronoi_show(ax, g):
-    ...
 
 @add_plotter('Клеточная декомпозиция')
-def voronoi_show(ax, g):
-    ...
+def ceil_show(ax, map):
+    m = ceil_decomp.create_ceil_graph_3d
