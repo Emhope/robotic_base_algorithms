@@ -31,6 +31,8 @@ class Graph(dict):
         self[vert1] = self.get(vert1, set()) | {(vert2, utils.get_dist(vert1, vert2))}
         self[vert2] = self.get(vert2, set()) | {(vert1, utils.get_dist(vert1, vert2))}
 
+    def add_vert(self, vert):
+        self.setdefault(vert, set())
     
     def draw_graph(self, ax=None):
         if ax is None:
