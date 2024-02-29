@@ -43,6 +43,24 @@ def dijkstra(graph: Graph, start):
 
     # return g, path
 
+@add_router('Поиск пути по графу после Дейкстры')
+def find_path(graph: Graph, distances, start, goal):
+    path = [goal]
+    current = goal
+    while current != start:
+        neighbors = graph[current]
+        min_distance = float('inf')
+        next_vertex = None
+        for neighbor, _ in neighbors.items():
+            if distances[neighbor] < min_distance:
+                min_distance = distances[neighbor]
+                next_vertex = neighbor
+        if next_vertex is None:
+            return None, None
+        path.insert(0, next_vertex)
+        current = next_vertex
+    return path, distances[goal]
+
 def _euclid_dist(node1, node2):
     x1, y1 = node1
     x2, y2 = node2
