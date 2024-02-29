@@ -1,5 +1,7 @@
 import numpy as np
 from scipy.signal import convolve2d, fftconvolve
+import PIL
+import io
 
 def convolution(img, kernel, dtype=None):
     res = convolve2d(img, kernel, mode='same')
@@ -26,6 +28,13 @@ def get_dist(p1, p2):
     return np.linalg.norm(
         np.array(p1) - np.array(p2)
     )
+
+
+def buffer_plot_and_get(fig):
+    buf = io.BytesIO()
+    fig.savefig(buf)
+    buf.seek(0)
+    return PIL.Image.open(buf)
 
 
 def _perp_intersection_point(p1, p2, p3):

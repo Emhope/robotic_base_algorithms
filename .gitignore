@@ -2,6 +2,6 @@
 /gui/__pycache__
 /__pycache__
 __pycache__
-/raw_data
 /cache/*
 test*
+astar.ipynb
