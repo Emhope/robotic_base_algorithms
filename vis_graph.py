@@ -52,4 +52,27 @@ def create_graph(map3d):
                 visual_graph.add_edge(v, n)
     return visual_graph   
 
-    
+
+def add_vert_to_vis_graph(visual_graph:Graph, map3d, x, y):
+    vert = (0, y, x)
+    visual_graph.add_vert(vert)
+    for n in visual_graph:
+        if n == vert:
+            continue
+        if _check_vis(vert, n, map3d):
+            visual_graph.add_edge(vert, n)
+    return visual_graph
+
+
+def vis_vis_graph(ax, visual_graph: Graph, map):
+    for e in visual_graph.get_edges():
+        v1, v2 = e
+        ax.plot([v1[2], v2[2]], [v1[1], v2[1]])
+    ax.imshow(map)
+
+
+def vis_vis_graph_layer(ax, visual_graph: Graph, map, layer):
+    for e in filter(lambda e: e[0][0] == e[1][0] == layer, visual_graph.get_edges()):
+        v1, v2 = e
+        ax.plot([v1[2], v2[2]], [v1[1], v2[1]])
+    ax.imshow(map)

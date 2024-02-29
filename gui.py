@@ -9,7 +9,10 @@ from graph_plotters import plotters as show_actions
 from routers import routers as route_actions
 from bug_2 import render_bug2
 
+<<<<<<< HEAD
 from cache import Cache
+=======
+>>>>>>> 3e9003fde60427d3445aedfcdc99958f4200744e
 
 WIDTH = 1080
 HEIGHT = 600
@@ -24,7 +27,6 @@ class App:
         self.root.title('Path planning')
         self.GUI()
         self.root.mainloop()
-        self.cache = Cache
 
 
     def GUI(self):
@@ -195,8 +197,8 @@ class App:
         file_path = filedialog.askopenfilename(initialdir='../raw_data/',
                                title='Select a file')
         self.map = map_tools.create_map(file_path)
-        self.cache = Cache()
-        self.cache.map = map
+        #self.cache = Cache()
+        #self.cache.map = map
         self.draw_map()
         
 

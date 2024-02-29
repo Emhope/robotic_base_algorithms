@@ -1,8 +1,13 @@
 import voronoi
 import numpy as np
 import config
+<<<<<<< HEAD
 from config_space import create_config_space
 import copy
+=======
+import ceil_decomp
+
+>>>>>>> 3e9003fde60427d3445aedfcdc99958f4200744e
 
 plotters = dict()
 
@@ -29,6 +34,7 @@ def voronoi_show(ax, map):
 @add_plotter('Карта')
 def map_show(ax, map):
     ax.clear()
+<<<<<<< HEAD
     return None, map
 
 @add_plotter('Граф видимости')
@@ -45,3 +51,16 @@ def minkowski_show(ax, map):
 @add_plotter('Клеточная декомпозиция')
 def cell_decomp_show(ax, g):
     ...
+=======
+    ax.imshow(map)
+    return None, map
+
+@add_plotter('Граф видимости')
+def vis_g_show(ax, map):
+    ...
+
+
+@add_plotter('Клеточная декомпозиция')
+def ceil_show(ax, map):
+    m = ceil_decomp.create_ceil_graph_3d
+>>>>>>> 3e9003fde60427d3445aedfcdc99958f4200744e
