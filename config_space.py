@@ -5,14 +5,14 @@ from PIL import Image
 import scipy
 import matplotlib.animation as animation
 import utils
-from config import step, h, w
+from config import step, h, w, angle_step
 
 
 def _create_robot_rotates():
     robot_shape = np.array((int(h/step), int(w/step)))
     robot = np.ones(robot_shape)
     robot = np.pad(robot, int(abs(h-w)/step)+5)
-    robot_rotates = [scipy.ndimage.rotate(robot, angle, reshape=False, order=0) for angle in range(0, 180, 10)]
+    robot_rotates = [scipy.ndimage.rotate(robot, angle, reshape=False, order=0) for angle in range(0, 180, angle_step)]
     return robot_rotates
 
 
@@ -24,5 +24,6 @@ def create_config_space(map):
         rot_map = utils.convolution(map, r)
         rot_map[rot_map>0] = 255
         configuration_space[i] = np.copy(rot_map)
+        configuration_space = configuration_space.astype(np.uint8)
     
     return configuration_space
