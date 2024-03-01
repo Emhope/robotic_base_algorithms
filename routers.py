@@ -19,12 +19,12 @@ def add_router(name):
 
 @add_router('Алгоритм Дейкстры')
 def dijkstra(graph, start, goal):
+    path = []
     distances = {node: float('infinity') for node in graph}
     distances[start] = 0
     predecessors = {node: None for node in graph}
     priority_queue = [(0, start)]
 
-    
     images = []
     fig, ax = plt.subplots()
 
@@ -53,13 +53,11 @@ def dijkstra(graph, start, goal):
         ax.clear()
 
         if curr_node == goal:
-            path = []
+            curr_node = goal
             while curr_node is not None:
-                path.append(curr_node)
+                path.insert(0, curr_node)
                 curr_node = predecessors[curr_node]
-            path.reverse()
-
-            return path, distances[goal], images
+            return distances, path, images
 
         for neighbor, weight in graph[curr_node].items():
             distance = curr_dist + weight
@@ -70,7 +68,7 @@ def dijkstra(graph, start, goal):
 
         iteration += 1
 
-    return None, float('infinity'), images 
+    return distances, path, images
 
 #     distances = {node: float('infinity') for node in graph}
 #     distances[start] = 0
@@ -141,31 +139,32 @@ def render_dijkstra(graph, start_point, end_point, fig, ax, canvas, fps=60):
         img.set_array(images[i*fps//10])
         canvas.draw()
         return img,
-    
     img = ax.imshow(images[0], animated=True, cmap='gray')
     ani = animation.FuncAnimation(fig, animate, frames=len(images)//(fps//10), interval=100, repeat=True, blit=True)
     # ani.save('scatter.gif', writer='imagemagick', fps=fps)
 
 
 
-def _euclid_dist(node1, node2):
+def _heuristic(node1, node2):
     x1, y1 = node1
     x2, y2 = node2
     return np.sqrt((x1-x2)**2 + (y1-y2)**2)
 
 @add_router('А*')
 def astar(graph, start, goal):
-    distances = {node: float('infinity') for node in graph}
-    distances[start] = 0
-    predecessors = {node: None for node in graph}
-    priority_queue = [(0, start)]
+    close_set = set()
+    came_from = {}
+    gscore = {node: float('infinity') for node in graph}
+    gscore[start] = 0
+    fscore = {start: _heuristic(start, goal)}
+    priority_queue = []
+    heapq.heappush(priority_queue, (fscore[start], start))
 
     images = []
     fig, ax = plt.subplots()
-
-    iteration = 0
+    
     while priority_queue:
-        curr_dist, curr_node = heapq.heappop(priority_queue)
+        curr_node = heapq.heappop(priority_queue)[1]
 
         for node in graph.keys():
             color = 'white'
@@ -175,37 +174,34 @@ def astar(graph, start, goal):
                 color = 'yellow'  # Текущая вершина
             elif node in [x[1] for x in priority_queue]:
                 color = 'blue'  # Открытая вершина
-            elif distances[node] != float('infinity'):
+            elif gscore[node] != float('inf'):
                 color = 'gray'  # Закрытая вершина
             ax.plot(node[0], node[1], marker='o', markersize=10, color=color)
             for neighbor, _ in graph[node].items():
                 ax.plot([node[0], neighbor[0]], [node[1], neighbor[1]], color='gray')
 
-        ax.set_aspect('equal')
-        ax.axis('off')
-        img = buffer_plot_and_get(fig)
-        images.append(img)
-        ax.clear()
-
         if curr_node == goal:
-            path = []
-            while curr_node is not None:
-                path.append(curr_node)
-                curr_node = predecessors[curr_node]
-            path.reverse()
+            data = []
+            while curr_node in came_from:
+                data.append(curr_node)
+                curr_node = came_from[curr_node]
+            return data, images
+        
+        close_set.add(curr_node)
 
-            return path, distances[goal], images
+        for neighbor, _ in graph[curr_node].items():
+            pre_g_score = gscore[curr_node] + _heuristic(curr_node, neighbor)
+ 
+            if neighbor in close_set and pre_g_score >= gscore.get(neighbor, 0):
+                continue
+ 
+            if  pre_g_score < gscore.get(neighbor, 0) or neighbor not in [i[1]for i in priority_queue]:
+                came_from[neighbor] = curr_node
+                gscore[neighbor] = pre_g_score
+                fscore[neighbor] = pre_g_score + _heuristic(neighbor, goal)
+                heapq.heappush(priority_queue, (fscore[neighbor], neighbor))
 
-        for neighbor, weight in graph[curr_node].items():
-            distance = curr_dist + weight + _euclid_dist(neighbor, goal)
-            if distance < distances[neighbor]:
-                distances[neighbor] = distance
-                predecessors[neighbor] = curr_node
-                heapq.heappush(priority_queue, (distance, neighbor))
-
-        iteration += 1
-
-    return None, float('infinity'), images
+    return None, images
 
 
 def render_astar(graph, start_point, end_point, fig, ax, canvas, fps=60):
