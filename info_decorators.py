@@ -12,7 +12,7 @@ def _timer(func):
     return wrapp
 
 
-def _save_res(func, test_name): # = 'test.png'
+def _save_res(func, test_name='test.png'):
 
     def wrapp(*args, **kwargs):
         res = func(*args, **kwargs)

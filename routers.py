@@ -78,8 +78,7 @@ def render_dijkstra(graph, start_point, end_point, fig, ax, canvas, fps=60):
         canvas.draw()
         return img,
     img = ax.imshow(images[0], animated=True, cmap='gray')
-    ani = animation.FuncAnimation(fig, animate, frames=len(images)//(fps//10), interval=100, repeat=True, blit=True)
-    # ani.save('scatter.gif', writer='imagemagick', fps=fps)
+    ani = animation.FuncAnimation(fig, animate, frames=len(images)//(fps//10), interval=100, repeat=True, blit=True)    
 
 
 
@@ -90,6 +89,7 @@ def _heuristic(node1, node2):
 
 @add_router('А*')
 def astar(graph, start, goal):
+    # start = (start[0], start[1])
     close_set = set()
     came_from = {}
     gscore = {node: float('infinity') for node in graph}
@@ -117,6 +117,12 @@ def astar(graph, start, goal):
             ax.plot(node[0], node[1], marker='o', markersize=10, color=color)
             for neighbor, _ in graph[node].items():
                 ax.plot([node[0], neighbor[0]], [node[1], neighbor[1]], color='gray')
+            
+        ax.set_aspect('equal')
+        ax.axis('off')
+        img = buffer_plot_and_get(fig)
+        images.append(img)
+        ax.clear()
 
         if curr_node == goal:
             data = []
@@ -143,7 +149,7 @@ def astar(graph, start, goal):
 
 
 def render_astar(graph, start_point, end_point, fig, ax, canvas, fps=60):
-    _, _, images = astar(graph, start_point, end_point)
+    _, images = astar(graph, start_point, end_point)
     def animate(i):
         img.set_array(images[i*fps//10])
         canvas.draw()
@@ -151,4 +157,6 @@ def render_astar(graph, start_point, end_point, fig, ax, canvas, fps=60):
     
     img = ax.imshow(images[0], animated=True, cmap='gray')
     ani = animation.FuncAnimation(fig, animate, frames=len(images)//(fps//10), interval=100, repeat=True, blit=True)
+    print('check')
+    # ani.save('test_astar.gif', writer='imagemagick', fps=fps)
 
