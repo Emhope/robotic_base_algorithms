@@ -212,5 +212,7 @@ def render_bug2(bin_map, start_point, end_point, fig, ax, canvas, fps=120):
         canvas.draw()
         return img,
 
+    # ax.scatter(*start_point, marker='.', c='g')
+    # ax.scatter(*end_point, marker='.', c='r')
     img = ax.imshow(res_arr[0], animated=True, cmap='gray')
     ani = animation.FuncAnimation(fig, animate, frames=len(res_arr)//(fps//10), interval=100, repeat=True, blit=True)

@@ -15,9 +15,11 @@ from config_space import create_config_space
 from routers import render_dijkstra, render_astar
 from cache import Cache
 from ceil_decomp import create_ceil_graph_2d, create_ceil_graph_2d2
+'''
+нач и кон точка, вороной, reqs
+'''
 
-
-WIDTH = 1080
+WIDTH = 1200
 HEIGHT = 600
 
 set_appearance_mode("dark")  # Modes: "System" (standard), "Dark", "Light"
@@ -35,14 +37,26 @@ class App:
     def GUI(self):
         
         self.frame_1 = CTkFrame(master=self.root, width=WIDTH//2, height=HEIGHT//2)
-        self.frame_1.pack(fill="both", expand=True, side="right")
+        self.frame_1.pack(fill="both", side="right") # expand=True,
 
         self.frame_2 = CTkFrame(master=self.root, width=WIDTH//2, height=HEIGHT//2)
         self.frame_2.pack(fill="both", expand=True, side="left") # fill y
 
         self.label_1 = self.create_label('Введите начальные и целевые координаты:')
         self.label_1.grid(row=0, column=0, columnspan=5, pady=10, padx=10, sticky=W) 
-       
+
+        self.label_4 = self.create_label('Введите шаг дискретизации:')
+        self.label_4.grid(row=3, column=5, pady=10, padx=10) 
+        self.entry_step = self.create_entry()
+        self.entry_step.grid(row=4, column=5, pady=10, padx=10, sticky=W)
+        self.entry_step.delete(0, END)
+        self.entry_step.insert(0, "50")
+
+        self.label_5 = self.create_label('Введите угол:')
+        self.label_5.grid(row=5, column=5, pady=10, padx=10, sticky=W) 
+        self.entry_angle = self.create_entry()
+        self.entry_angle.grid(row=6, column=5, pady=10, padx=10, sticky=W)
+
         self.label_x0 = self.create_label('X0:')
         self.label_x0.grid(row=1, column=0, pady=10, padx=10, sticky=W)
         self.label_y0 = self.create_label('Y0:')
@@ -92,7 +106,7 @@ class App:
         
         self.optionmenu_algorithm.grid(row=6, column=0, columnspan=4, pady=10, padx=10)
 
-
+    
     def create_entry(self):
         self.entry = CTkEntry(master=self.frame_1,
                               width=64,
@@ -168,17 +182,16 @@ class App:
             masses = voronoi.obs_centers(self.map, config.voronoi_obs_thresh)
             self.ax.scatter(masses.transpose()[1], masses.transpose()[0])
             self.ax.imshow(~self.map, cmap='gray')
-            # vis_vis_graph_layer(self.ax, self.curr_graph, self.map, 1)
 
         if action == "Расширенная карта":
             self.ax.clear()
             # config_space = create_config_space(copy.copy(self.map))
-            map = self.config_space[int(0),: ,:]
+            map = self.config_space[self.get_entry_ang_step(self.entry_angle) // config.angle_step,: ,:]
             self.ax.imshow(map, cmap='gray')
 
         if action == "Клеточная декомпозиция":
             self.ax.clear()
-            self.curr_graph = create_ceil_graph_2d(self.map, 50)
+            self.curr_graph = create_ceil_graph_2d(self.map, self.get_entry_ang_step(self.entry_step))
             self.ax.imshow(~self.map.astype(bool), cmap='gray')
             self.curr_graph.draw_graph(self.ax)        
             
@@ -188,9 +201,8 @@ class App:
 
     def button_create_path_callback(self):
         current_value = self.optionmenu_algorithm.get()
-
         self.ax.clear()
-        # self.ax.imshow(self.map)
+
         if current_value == "Алгоритм жука":
             start_point, end_point = self.get_entry_values()
             # cv2.imwrite('ex7.png', self.map)
@@ -199,7 +211,7 @@ class App:
         if current_value == "А*":
             start_point, end_point = self.get_entry_values()
             if self.optionmenu.get() == "Клеточная декомпозиция":
-                self.curr_graph = create_ceil_graph_2d2(self.map, 50)
+                self.curr_graph = create_ceil_graph_2d2(self.map, self.get_entry_ang_step(self.entry_step))
                 self.canvas.draw()
                 self.ax.clear()
                 render_astar(self.curr_graph, start_point, end_point, self.fig, self.ax, self.canvas, fps=60)
@@ -218,7 +230,7 @@ class App:
                 self.ax.clear()
                 render_dijkstra(self.curr_graph, start_point, end_point, self.fig, self.ax, self.canvas, fps=60)
             elif self.optionmenu.get() == "Клеточная декомпозиция":
-                self.curr_graph = create_ceil_graph_2d2(self.map, 50)
+                self.curr_graph = create_ceil_graph_2d2(self.map, self.get_entry_ang_step(self.entry_step))
                 self.canvas.draw()
                 self.ax.clear()
                 render_dijkstra(self.curr_graph, start_point, end_point, self.fig, self.ax, self.canvas, fps=60)
@@ -270,4 +282,8 @@ class App:
         end = (int(self.entry_x1.get()), int(self.entry_y1.get()))
 
         return start, end
+
+
+    def get_entry_ang_step(self, entry):
+        return int(entry.get())
 
