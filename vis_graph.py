@@ -75,4 +75,4 @@ def vis_vis_graph_layer(ax, visual_graph: Graph, map, layer):
     for e in filter(lambda e: e[0][0] == e[1][0] == layer, visual_graph.get_edges()):
         v1, v2 = e
         ax.plot([v1[2], v2[2]], [v1[1], v2[1]])
-    ax.imshow(map)
+    ax.imshow(~map, cmap='gray')

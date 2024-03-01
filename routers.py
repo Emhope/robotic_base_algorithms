@@ -73,12 +73,14 @@ def dijkstra(graph, start, goal):
 
 def render_dijkstra(graph, start_point, end_point, fig, ax, canvas, fps=60):
     _, _, images = dijkstra(graph, start_point, end_point)
+    print('start ani')
     def animate(i):
-        img.set_array(images[i*fps//10])
+        img.set_array(images[i])
         canvas.draw()
         return img,
     img = ax.imshow(images[0], animated=True, cmap='gray')
-    ani = animation.FuncAnimation(fig, animate, frames=len(images)//(fps//10), interval=100, repeat=True, blit=True)    
+    ani = animation.FuncAnimation(fig, animate, frames=len(images), interval=100, repeat=True, blit=True)  
+    print('end ani')  
 
 
 
@@ -151,12 +153,12 @@ def astar(graph, start, goal):
 def render_astar(graph, start_point, end_point, fig, ax, canvas, fps=60):
     _, images = astar(graph, start_point, end_point)
     def animate(i):
-        img.set_array(images[i*fps//10])
+        img.set_array(images[i])
         canvas.draw()
         return img,
     
     img = ax.imshow(images[0], animated=True, cmap='gray')
-    ani = animation.FuncAnimation(fig, animate, frames=len(images)//(fps//10), interval=100, repeat=True, blit=True)
-    print('check')
+    ani = animation.FuncAnimation(fig, animate, frames=len(images), interval=100, repeat=True, blit=True)
+    # print('check')
     # ani.save('test_astar.gif', writer='imagemagick', fps=fps)
 
