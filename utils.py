@@ -1,5 +1,15 @@
 import numpy as np
 from scipy.signal import convolve2d, fftconvolve
+import io
+import PIL
+
+
+def buffer_plot_and_get(fig):
+    buf = io.BytesIO()
+    fig.savefig(buf)
+    buf.seek(0)
+    return PIL.Image.open(buf)
+
 
 def convolution(img, kernel, dtype=None):
     res = convolve2d(img, kernel, mode='same')

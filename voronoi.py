@@ -5,6 +5,7 @@ import scipy
 import matplotlib.animation as animation
 import utils
 from graph_class import Graph
+import config
 
 
 def obs_centers(map, thresh) -> np.ndarray:
@@ -17,13 +18,12 @@ def obs_centers(map, thresh) -> np.ndarray:
         obs_center = (np.sum(points, axis=1) / points.shape[1]).astype(int)
         if mask[obs_center[0], obs_center[1]] and points.shape[1] >= thresh:
             res.append(obs_center)
-    
     return np.array(res)
 
 
-def voronoi(m, obs_thresh):
+def voronoi(m):
     map = np.copy(m)
-    obs = obs_centers(map, obs_thresh)
+    obs = obs_centers(map, config.voronoi_obs_thresh)
     obs = np.concatenate((obs, np.array([[m.shape[1]*2, m.shape[0]*2], [m.shape[1]*2, -m.shape[0]*2], [-m.shape[1]*2, 0]])))
     v = scipy.spatial.Voronoi(obs[:, ::-1])
     return v
@@ -42,7 +42,7 @@ def voronoi_to_graph(v):
     return Graph(res)
 
 
-def create_voronoi_graph(map, obs_thresh) -> Graph:
-    v = voronoi(map, obs_thresh)
+def create_voronoi_graph(map) -> Graph:
+    v = voronoi(map)
     g = voronoi_to_graph(v)
     return g
