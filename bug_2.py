@@ -68,12 +68,13 @@ def bug222(bin_map, start_point, end_point):
     flag_back = False
     counter_right = 0
     counter_left = 0
+    counter = 0
     # for i in range(1250):
     res = copy.copy(bin_map)
     res_arr = []
 
     while state != 'goal_reached':
-
+        counter += 1
         if state == 'follow mline':                       
             i = 0
             safe_dist_right = 0.4
@@ -92,7 +93,7 @@ def bug222(bin_map, start_point, end_point):
             # bin_map = config_space[int(angle_to_goal // config.angle_step),: ,:]
             flag = True
             while flag:
-
+                counter += 1
                 i += 1
                 if (mline[0][i], mline[1][i]) == end_point: # change
                     state = 'goal_reached'
@@ -176,7 +177,7 @@ def bug222(bin_map, start_point, end_point):
                 # if distance to obstacle is < safe_dist, then turn left
                 state = 'turn counterclock-wise'
 
-            if not check_obst(curr_pos, curr_angle, bin_map, -90, 0.3):
+            if not check_obst(curr_pos, curr_angle, bin_map, -90, safe_dist_right):
                 state = 'turn clock-wise'
 
             if check_obst(curr_pos, curr_angle, bin_map, 0, safe_dist):
