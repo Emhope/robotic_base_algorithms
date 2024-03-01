@@ -3,10 +3,18 @@ from  customtkinter import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import map_tools
 import config
+import cv2
+import copy
+import voronoi
 from utils import minkowski
 from graph_plotters import plotters as show_actions
 from routers import routers as route_actions
 from bug_2 import render_bug2
+from vis_graph import vis_vis_graph_layer, create_graph
+from config_space import create_config_space
+from routers import render_dijkstra, render_astar
+from cache import Cache
+from ceil_decomp import create_ceil_graph_2d, create_ceil_graph_2d2
 
 
 WIDTH = 1080
@@ -55,7 +63,7 @@ class App:
         self.entry_y1 = self.create_entry()
         self.entry_y1.grid(row=2, column=3, pady=10, padx=10, sticky=W)
 
-        self.label_2 = self.create_label('Выберите что-то')
+        self.label_2 = self.create_label('Выберите графическое представление карты')
         self.label_2.grid(row=3, column=0, columnspan=4, pady=10, padx=10, sticky=W)
 
         self.label_3 = self.create_label('Выберите алгоритм')
@@ -78,7 +86,7 @@ class App:
         
         self.optionmenu_map.grid(row=4, column=0, columnspan=4, pady=10, padx=10)
 
-        self.optionmenu_algorithm = self.create_optionmenu(["Алгоритм жука", "Реактивный алгоритм жука", "А*", "Алгоритм Дейкстры", "Че-то воронового"],
+        self.optionmenu_algorithm = self.create_optionmenu(["Алгоритм жука", "А*", "Алгоритм Дейкстры"],
                                                    self.optionmenu_algorithm_callback
                                                    )
         
@@ -109,8 +117,8 @@ class App:
     
     def optionmenu_map_callback(self, choice):
         combs = {
-                "Карта": ["Алгоритм жука", "Реактивный алгоритм жука"],
-                "Расширенная карта": ["Алгоритм жука", "Реактивный алгоритм жука"],
+                "Карта": ["Алгоритм жука"],
+                "Расширенная карта": [""],
                 "Граф видимости": ["А*", "Алгоритм Дейкстры"],
                 "Диаграмма Вороного": ["А*", "Алгоритм Дейкстры"],
                 "Клеточная декомпозиция": ["А*", "Алгоритм Дейкстры"]
@@ -142,30 +150,81 @@ class App:
 
     def button_show_callback(self):
         action = self.optionmenu_map.get()
-        g, map = show_actions[action](self.ax, self.map)
-        if g is not None:
-            self.g = g
-        if map is not None:
-            self.map = map
 
-        self.ax.imshow(self.map)
+        if action == "Карта":
+            self.ax.clear()
+            self.ax.imshow(~self.map, cmap='gray')
+        
+        if action == "Граф видимости":
+            # self.config_space = create_config_space(self.map)
+            self.curr_graph = create_graph(self.config_space)
+            vis_vis_graph_layer(self.ax, self.curr_graph, self.map, 1)
+
+        if action == "Диаграмма Вороного":
+            # self.config_space = create_config_space(self.map)
+            self.curr_graph = voronoi.create_voronoi_graph(self.map, config.voronoi_obs_thresh)
+            self.ax.clear()
+            self.curr_graph.draw_graph(self.ax)            
+            masses = voronoi.obs_centers(self.map, config.voronoi_obs_thresh)
+            self.ax.scatter(masses.transpose()[1], masses.transpose()[0])
+            self.ax.imshow(~self.map, cmap='gray')
+            # vis_vis_graph_layer(self.ax, self.curr_graph, self.map, 1)
+
+        if action == "Расширенная карта":
+            self.ax.clear()
+            # config_space = create_config_space(copy.copy(self.map))
+            map = self.config_space[int(0),: ,:]
+            self.ax.imshow(map, cmap='gray')
+
+        if action == "Клеточная декомпозиция":
+            self.ax.clear()
+            self.curr_graph = create_ceil_graph_2d(self.map, 50)
+            self.ax.imshow(~self.map.astype(bool), cmap='gray')
+            self.curr_graph.draw_graph(self.ax)        
+            
+        
         self.canvas.draw()
         
 
     def button_create_path_callback(self):
         current_value = self.optionmenu_algorithm.get()
-        start = (int(self.entry_x0.get()), int(self.entry_y0.get()))
-        goal = (int(self.entry_x1.get()), int(self.entry_y1.get()))
-        # g, path = route_actions[current_value](self.g, start, goal)
 
         self.ax.clear()
         # self.ax.imshow(self.map)
         if current_value == "Алгоритм жука":
             start_point, end_point = self.get_entry_values()
+            # cv2.imwrite('ex7.png', self.map)
             render_bug2(self.map, start_point, end_point, self.fig, self.ax, self.canvas)
-        # g.draw_graph(self.ax)
+        
+        if current_value == "А*":
+            start_point, end_point = self.get_entry_values()
+            if self.optionmenu.get() == "Клеточная декомпозиция":
+                self.curr_graph = create_ceil_graph_2d2(self.map, 50)
+                self.canvas.draw()
+                self.ax.clear()
+                render_astar(self.curr_graph, start_point, end_point, self.fig, self.ax, self.canvas, fps=60)
+            
+
+
+        if current_value == "Алгоритм Дейкстры":
+            # self.config_space = create_config_space(self.map)
+            start_point, end_point = self.get_entry_values()
+            
+            if self.optionmenu_map.get() == "Диаграмма Вороного":
+                self.curr_graph.add_endpoint(start_point)
+                self.curr_graph.add_endpoint(end_point)
+                self.curr_graph.draw_graph(self.ax)
+                self.canvas.draw()
+                self.ax.clear()
+                render_dijkstra(self.curr_graph, start_point, end_point, self.fig, self.ax, self.canvas, fps=60)
+            elif self.optionmenu.get() == "Клеточная декомпозиция":
+                self.curr_graph = create_ceil_graph_2d2(self.map, 50)
+                self.canvas.draw()
+                self.ax.clear()
+                render_dijkstra(self.curr_graph, start_point, end_point, self.fig, self.ax, self.canvas, fps=60)
+
         self.canvas.draw()
-    
+
 
     def create_plot(self):
 
@@ -191,6 +250,7 @@ class App:
         #self.cache = Cache()
         #self.cache.map = map
         self.draw_map()
+        self.config_space = create_config_space(self.map)
         
 
     def draw_map(self):
@@ -198,7 +258,7 @@ class App:
         отрисовка карты
         '''
         self.ax.clear()
-        self.ax.imshow(~self.map.astype(bool), cmap='gray')
+        self.ax.imshow(self.map.astype(bool), cmap='gray')
         self.canvas.draw()
 
 

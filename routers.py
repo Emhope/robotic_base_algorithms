@@ -4,6 +4,9 @@ import config
 from copy import deepcopy
 from graph_class import Graph
 import heapq
+from utils import buffer_plot_and_get
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 
 routers = dict()
@@ -15,34 +18,135 @@ def add_router(name):
     return adder
 
 @add_router('Алгоритм Дейкстры')
-def dijkstra(graph: Graph, start, goal):
-    g = deepcopy(graph)
-    g.add_endpoint(start)
-
-    # path = ...
-
+def dijkstra(graph, start, goal):
     distances = {node: float('infinity') for node in graph}
     distances[start] = 0
     predecessors = {node: None for node in graph}
     priority_queue = [(0, start)]
 
+    
+    images = []
+    fig, ax = plt.subplots()
+
+    iteration = 0
     while priority_queue:
         curr_dist, curr_node = heapq.heappop(priority_queue)
+
+        for node in graph.keys():
+            color = 'white'
+            if node == goal:
+                color = 'red'  # Целевая вершина
+            elif node == curr_node:
+                color = 'yellow'  # Текущая вершина
+            elif node in [x[1] for x in priority_queue]:
+                color = 'blue'  # Открытая вершина
+            elif distances[node] != float('infinity'):
+                color = 'gray'  # Закрытая вершина
+            ax.plot(node[0], node[1], marker='o', markersize=10, color=color)
+            for neighbor, _ in graph[node].items():
+                ax.plot([node[0], neighbor[0]], [node[1], neighbor[1]], color='gray')
+
+        ax.set_aspect('equal')
+        ax.axis('off')
+        img = buffer_plot_and_get(fig)
+        images.append(img)
+        ax.clear()
+
         if curr_node == goal:
             path = []
             while curr_node is not None:
                 path.append(curr_node)
                 curr_node = predecessors[curr_node]
             path.reverse()
-            return path, distances[goal]
+
+            return path, distances[goal], images
+
         for neighbor, weight in graph[curr_node].items():
-            dist = curr_dist + weight
-            if dist < distances[neighbor]:
-                distances[neighbor] = dist
+            distance = curr_dist + weight
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
                 predecessors[neighbor] = curr_node
-                heapq.heappush(priority_queue, (dist, neighbor))
-    return None, float('infinity')
-    # return g, path
+                heapq.heappush(priority_queue, (distance, neighbor))
+
+        iteration += 1
+
+    return None, float('infinity'), images 
+
+#     distances = {node: float('infinity') for node in graph}
+#     distances[start] = 0
+#     predecessors = {node: None for node in graph}
+#     priority_queue = [(0, start)]
+
+#     images = []
+#     fig, ax = plt.subplots()
+
+#     iteration = 0
+#     while priority_queue:
+#         curr_dist, curr_node = heapq.heappop(priority_queue)
+    
+#         for node in graph.keys():
+#             color = 'white'
+#             if node == goal:
+#                 color = 'red'  # Целевая вершина
+#             elif node == curr_node:
+#                 color = 'yellow'  # Текущая вершина
+#             elif node in [x[1] for x in priority_queue]:
+#                 color = 'blue'  # Открытая вершина
+#             elif distances[node] != float('infinity'):
+#                 color = 'gray'  # Закрытая вершина
+#             if len(node) == 3:
+#                 ax.plot(node[2], node[1], marker='o', markersize=10, color=color)
+#             else:
+#                 ax.plot(node[0], node[1], marker='o', markersize=10, color=color)
+                
+#             for neighbor, _ in graph[node]:
+#                 if len(node) == 3:
+#                     ax.plot([node[2], neighbor[2]], [node[1], neighbor[1]], color='gray')
+#                 else:
+#                     ax.plot([node[0], neighbor[0]], [node[1], neighbor[1]], color='gray')
+
+#             ax.set_aspect('equal')
+#             ax.axis('off')
+#             img = buffer_plot_and_get(fig)
+#             images.append(img)
+#             ax.clear()
+
+#         if curr_node == goal:
+#             path = []
+#             while curr_node is not None:
+#                 path.append(curr_node)
+#                 curr_node = predecessors[curr_node]
+#             path.reverse()
+
+#             return path, distances[goal], images
+
+#         for neighbor, weight in graph[curr_node]:
+#             distance = curr_dist + weight
+#             if distance < distances[neighbor]:
+#                 distances[neighbor] = distance
+#                 predecessors[neighbor] = curr_node
+#                 heapq.heappush(priority_queue, (distance, neighbor))
+
+#         iteration += 1
+
+#     return None, float('infinity'), images
+
+
+
+
+
+def render_dijkstra(graph, start_point, end_point, fig, ax, canvas, fps=60):
+    _, _, images = dijkstra(graph, start_point, end_point)
+    def animate(i):
+        img.set_array(images[i*fps//10])
+        canvas.draw()
+        return img,
+    
+    img = ax.imshow(images[0], animated=True, cmap='gray')
+    ani = animation.FuncAnimation(fig, animate, frames=len(images)//(fps//10), interval=100, repeat=True, blit=True)
+    # ani.save('scatter.gif', writer='imagemagick', fps=fps)
+
+
 
 def _euclid_dist(node1, node2):
     x1, y1 = node1
@@ -50,35 +154,67 @@ def _euclid_dist(node1, node2):
     return np.sqrt((x1-x2)**2 + (y1-y2)**2)
 
 @add_router('А*')
-def a_star(graph, start, goal):
-    g = deepcopy(graph)
-    g.add_endpoint(start)
-    g.add_endpoint(goal)
-
-    # path = ...
-    
+def astar(graph, start, goal):
     distances = {node: float('infinity') for node in graph}
     distances[start] = 0
     predecessors = {node: None for node in graph}
     priority_queue = [(0, start)]
 
+    images = []
+    fig, ax = plt.subplots()
+
+    iteration = 0
     while priority_queue:
         curr_dist, curr_node = heapq.heappop(priority_queue)
+
+        for node in graph.keys():
+            color = 'white'
+            if node == goal:
+                color = 'red'  # Целевая вершина
+            elif node == curr_node:
+                color = 'yellow'  # Текущая вершина
+            elif node in [x[1] for x in priority_queue]:
+                color = 'blue'  # Открытая вершина
+            elif distances[node] != float('infinity'):
+                color = 'gray'  # Закрытая вершина
+            ax.plot(node[0], node[1], marker='o', markersize=10, color=color)
+            for neighbor, _ in graph[node].items():
+                ax.plot([node[0], neighbor[0]], [node[1], neighbor[1]], color='gray')
+
+        ax.set_aspect('equal')
+        ax.axis('off')
+        img = buffer_plot_and_get(fig)
+        images.append(img)
+        ax.clear()
+
         if curr_node == goal:
             path = []
             while curr_node is not None:
                 path.append(curr_node)
                 curr_node = predecessors[curr_node]
             path.reverse()
-            return path, distances[goal]
-        for neighbor, weight in graph[curr_node].items():
-            dist = curr_dist + weight
-            heuristic = _euclid_dist(neighbor, goal)
-            total_dist = dist + heuristic
-            if total_dist < distances[neighbor]:
-                distances[neighbor] = total_dist
-                predecessors[neighbor] = curr_node
-                heapq.heappush(priority_queue, (total_dist, neighbor))
-    return None, float('infinity')
 
-    # return g, path
+            return path, distances[goal], images
+
+        for neighbor, weight in graph[curr_node].items():
+            distance = curr_dist + weight + _euclid_dist(neighbor, goal)
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                predecessors[neighbor] = curr_node
+                heapq.heappush(priority_queue, (distance, neighbor))
+
+        iteration += 1
+
+    return None, float('infinity'), images
+
+
+def render_astar(graph, start_point, end_point, fig, ax, canvas, fps=60):
+    _, _, images = astar(graph, start_point, end_point)
+    def animate(i):
+        img.set_array(images[i*fps//10])
+        canvas.draw()
+        return img,
+    
+    img = ax.imshow(images[0], animated=True, cmap='gray')
+    ani = animation.FuncAnimation(fig, animate, frames=len(images)//(fps//10), interval=100, repeat=True, blit=True)
+

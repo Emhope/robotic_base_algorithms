@@ -66,7 +66,7 @@ def _union_frames_bad_ver(coordinates, lidar):
         data = cv2.imread('tmp/tmp_frame.jpg')
         data = cv2.Canny(cv2.blur(data, (9, 9)), 100, 200)
         
-        cv2.imwrite('tmp/tmp_frame.jpg', data)
+        # cv2.imwrite('tmp/tmp_frame.jpg', data)
         data = data = cv2.imread('tmp/tmp_frame.jpg', cv2.IMREAD_GRAYSCALE)
         
         if res is None:
