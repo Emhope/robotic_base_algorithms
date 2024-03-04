@@ -211,7 +211,7 @@ class App:
             start_point, end_point = self.get_entry_values()
             # if self.optionmenu.get() == "Клеточная декомпозиция":
             self.step = self.get_entry_ang_step(self.entry_step)
-            self.curr_graph = create_ceil_graph_2d2(self.map, self.step)
+            self.curr_graph = create_ceil_graph_2d(self.map, self.step)
             self.canvas.draw()
             self.ax.clear()
             start_point = ((start_point[0] // self.step) * self.step + self.step//2, (start_point[1] // self.step)* self.step + self.step//2)
@@ -231,7 +231,7 @@ class App:
                 render_dijkstra(self.curr_graph, start_point, end_point, self.fig, self.ax, self.canvas, fps=60)
 
             elif self.optionmenu_map.get() == "Клеточная декомпозиция":
-                self.curr_graph = create_ceil_graph_2d2(self.map, self.step)
+                self.curr_graph = create_ceil_graph_2d(self.map, self.step)
                 self.canvas.draw()
                 self.ax.clear()
                 start_point = ((start_point[0] // self.step) * self.step + self.step//2, (start_point[1] // self.step)* self.step + self.step//2)
