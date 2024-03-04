@@ -14,7 +14,7 @@ from vis_graph import vis_vis_graph_layer, create_graph
 from config_space import create_config_space
 from routers import render_dijkstra, render_astar
 from cache import Cache
-from ceil_decomp import create_ceil_graph_2d, create_ceil_graph_2d2
+from ceil_decomp import create_ceil_graph_2d, create_ceil_graph_3d
 '''
 нач и кон точка, вороной, convert graphs (A* to voronoi/vis graph)
 '''
@@ -171,7 +171,9 @@ class App:
         
         if action == "Граф видимости":
             self.ax.clear()
-            self.curr_graph = create_graph(self.config_space)
+            if self.vis_graph is None:
+                self.vis_graph = create_graph(self.config_space)
+            self.curr_graph = copy.deepcopy(self.vis_graph)
             self.angle = self.get_entry_ang_step(self.entry_angle)
             map = self.config_space[self.get_entry_ang_step(self.entry_angle) % 180 // config.angle_step,: ,:]
             vis_vis_graph_layer(self.ax, self.curr_graph, map, self.get_entry_ang_step(self.entry_angle) % 180 // config.angle_step) #vlskjan
@@ -191,8 +193,11 @@ class App:
 
         if action == "Клеточная декомпозиция":
             self.ax.clear()
-            self.curr_graph = create_ceil_graph_2d(self.map, self.get_entry_ang_step(self.entry_step))
-            self.ax.imshow(~self.map.astype(bool), cmap='gray')
+            angle = self.get_entry_ang_step(self.entry_angle) % 180 // config.angle_step
+            if self.ceil_graph is None or angle != self.last_ceil_step:
+                self.ceil_graph = create_ceil_graph_2d(self.config_space[angle], self.get_entry_ang_step(self.entry_step))
+            self.curr_graph = copy.deepcopy(self.ceil_graph)
+            self.ax.imshow(~self.config_space[angle].astype(bool), cmap='gray')
             self.curr_graph.draw_graph(self.ax)        
                     
         self.canvas.draw()
@@ -231,7 +236,7 @@ class App:
                 render_dijkstra(self.curr_graph, start_point, end_point, self.fig, self.ax, self.canvas, fps=60)
 
             elif self.optionmenu_map.get() == "Клеточная декомпозиция":
-                self.curr_graph = create_ceil_graph_2d(self.map, self.step)
+                #self.curr_graph = create_ceil_graph_2d(self.map, self.step)
                 self.canvas.draw()
                 self.ax.clear()
                 start_point = ((start_point[0] // self.step) * self.step + self.step//2, (start_point[1] // self.step)* self.step + self.step//2)
@@ -265,6 +270,10 @@ class App:
         self.map = map_tools.create_map(file_path)
         self.draw_map()
         self.config_space = create_config_space(self.map)
+        self.curr_graph = None
+        self.vis_graph = None
+        self.ceil_graph = None
+        self.last_ceil_step = -1
         
 
     def draw_map(self):
