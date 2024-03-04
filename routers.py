@@ -58,8 +58,11 @@ def dijkstra(graph, start, goal):
                 path.insert(0, curr_node)
                 curr_node = predecessors[curr_node]
             return distances, path, images
+        
+        if curr_dist > distances[curr_node]:
+            continue
 
-        for neighbor, weight in graph[curr_node].items():
+        for neighbor, weight in graph[curr_node]:
             distance = curr_dist + weight
             if distance < distances[neighbor]:
                 distances[neighbor] = distance
@@ -135,7 +138,7 @@ def astar(graph, start, goal):
         
         close_set.add(curr_node)
 
-        for neighbor, _ in graph[curr_node].items():
+        for neighbor, _ in graph[curr_node]:
             pre_g_score = gscore[curr_node] + _heuristic(curr_node, neighbor)
  
             if neighbor in close_set and pre_g_score >= gscore.get(neighbor, 0):
