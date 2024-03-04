@@ -43,7 +43,7 @@ def dijkstra(graph, start, goal):
             elif distances[node] != float('infinity'):
                 color = 'gray'  # Закрытая вершина
             ax.plot(node[0], node[1], marker='o', markersize=10, color=color)
-            for neighbor, _ in graph[node].items():
+            for neighbor, _ in graph[node]:
                 ax.plot([node[0], neighbor[0]], [node[1], neighbor[1]], color='gray')
 
         ax.set_aspect('equal')
@@ -120,7 +120,7 @@ def astar(graph, start, goal):
             elif gscore[node] != float('inf'):
                 color = 'gray'  # Закрытая вершина
             ax.plot(node[0], node[1], marker='o', markersize=10, color=color)
-            for neighbor, _ in graph[node].items():
+            for neighbor, _ in graph[node]:
                 ax.plot([node[0], neighbor[0]], [node[1], neighbor[1]], color='gray')
             
         ax.set_aspect('equal')
