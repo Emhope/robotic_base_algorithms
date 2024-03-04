@@ -7,7 +7,7 @@ class Graph(dict):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for k in self:
-            self[k] = set(self[k])
+            self[k] = list(set(self[k]))
 
     def get_edges(self):    
         edges = []
@@ -15,24 +15,34 @@ class Graph(dict):
             for neighbor in self[n]:
                 edge = tuple(sorted([n, neighbor[0]]))
                 edges.append(edge)
-        return set(edges)
+        return list(set(edges))
     
     def remove_edge(self, vert1, vert2):
-        for n in self[vert1]:
-            if vert2 == n[0]:
-                self[vert1].remove(n)
-                break
-        for n in self[vert2]:
-            if vert1 == n[0]:
-                self[vert2].remove(n)
-                break
+        if vert1 in self:
+            for n in self[vert1]:
+                if vert2 == n[0]:
+                    self[vert1].remove(n)
+                    if not self[vert1]:
+                        self.remove_vertex(vert1)
+                    break
+        
+        if vert2 in self:
+            for n in self[vert2]:
+                if vert1 == n[0]:
+                    self[vert2].remove(n)
+                    if not self[vert2]:
+                        self.remove_vertex(vert2)
+                    break
+            
     
     def add_edge(self, vert1, vert2):
-        self[vert1] = self.get(vert1, set()) | {(vert2, utils.get_dist(vert1, vert2))}
-        self[vert2] = self.get(vert2, set()) | {(vert1, utils.get_dist(vert1, vert2))}
+        self[vert1] = list(set((self.get(vert1, list()) + [(vert2, utils.get_dist(vert1, vert2))])))
+        self[vert2] = list(set((self.get(vert2, list()) + [(vert1, utils.get_dist(vert1, vert2))])))
+
 
     def add_vert(self, vert):
-        self.setdefault(vert, set())
+        self.setdefault(vert, list())
+ 
     
     def draw_graph(self, ax=None):
         if ax is None:
@@ -43,12 +53,18 @@ class Graph(dict):
             for n in self[vert]:
                 ax.plot([vert[0], n[0][0]], [vert[1], n[0][1]], 'k', 10)
             ax.scatter(*vert, 100, 'b')
-    
+
 
     def remove_vertex(self, vertex):
+        if vertex not in self:
+            return
+        rm_vertices = []
         for n in self[vertex]:
-            self.remove_edge(vertex, n[0])
-        self.pop(vertex)
+            rm_vertices.append(n[0])
+        for v in rm_vertices:
+            self.remove_edge(v, vertex)
+        if vertex in self:
+            self.pop(vertex)
 
 
     def remove_endpoint(self, endpoint):

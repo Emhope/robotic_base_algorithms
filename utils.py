@@ -42,6 +42,11 @@ def _perp_intersection_point(p1, p2, p3):
     return (p3[0] - k * (p2[1]-p1[1]), p3[1] + k * (p2[0]-p1[0]))
 
 
+def _on_line_seg(a1, a2, p):
+    eq1 = p[0] >= min(a1[0], a2[0]) and p[0] <= max(a1[0], a2[0])
+    eq2 = p[1] >= min(a1[1], a2[1]) and p[1] <= max(a1[1], a2[1])
+    return eq1 and eq2
+
 
 def perp_intersection(p1, p2, p3):
     '''
@@ -50,10 +55,8 @@ def perp_intersection(p1, p2, p3):
     returns distance and point of intersection
     '''
     p4 = _perp_intersection_point(p1, p2, p3)
-    
-    eq1 = p4[0] >= min(p1[0], p2[0]) and p4[0] <= max(p1[0], p2[0])
-    eq2 = p4[1] >= min(p1[1], p2[1]) and p4[1] <= max(p1[1], p2[1])
-    if eq1 and eq2:
+
+    if _on_line_seg(p1, p2, p4):
         return get_dist(p3, p4), p4
     else:
         return -1, None
