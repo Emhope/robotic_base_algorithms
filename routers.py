@@ -43,7 +43,7 @@ def dijkstra(graph, start, goal):
             elif distances[node] != float('infinity'):
                 color = 'gray'  # Закрытая вершина
             ax.plot(node[0], node[1], marker='o', markersize=10, color=color)
-            for neighbor, _ in graph[node].items():
+            for neighbor, _ in graph[node]:
                 ax.plot([node[0], neighbor[0]], [node[1], neighbor[1]], color='gray')
 
         ax.set_aspect('equal')
@@ -58,8 +58,11 @@ def dijkstra(graph, start, goal):
                 path.insert(0, curr_node)
                 curr_node = predecessors[curr_node]
             return distances, path, images
+        
+        if curr_dist > distances[curr_node]:
+            continue
 
-        for neighbor, weight in graph[curr_node].items():
+        for neighbor, weight in graph[curr_node]:
             distance = curr_dist + weight
             if distance < distances[neighbor]:
                 distances[neighbor] = distance
@@ -117,7 +120,7 @@ def astar(graph, start, goal):
             elif gscore[node] != float('inf'):
                 color = 'gray'  # Закрытая вершина
             ax.plot(node[0], node[1], marker='o', markersize=10, color=color)
-            for neighbor, _ in graph[node].items():
+            for neighbor, _ in graph[node]:
                 ax.plot([node[0], neighbor[0]], [node[1], neighbor[1]], color='gray')
             
         ax.set_aspect('equal')
@@ -135,7 +138,7 @@ def astar(graph, start, goal):
         
         close_set.add(curr_node)
 
-        for neighbor, _ in graph[curr_node].items():
+        for neighbor, _ in graph[curr_node]:
             pre_g_score = gscore[curr_node] + _heuristic(curr_node, neighbor)
  
             if neighbor in close_set and pre_g_score >= gscore.get(neighbor, 0):
