@@ -95,6 +95,7 @@ def _heuristic(node1, node2):
 @add_router('А*')
 def astar(graph, start, goal):
     # start = (start[0], start[1])
+    path = []
     close_set = set()
     came_from = {}
     gscore = {node: float('infinity') for node in graph}
@@ -130,7 +131,6 @@ def astar(graph, start, goal):
         ax.clear()
 
         if curr_node == goal:
-            path = []
             while curr_node in came_from:
                 path.append(curr_node)
                 curr_node = came_from[curr_node]
@@ -150,7 +150,7 @@ def astar(graph, start, goal):
                 fscore[neighbor] = pre_g_score + _heuristic(neighbor, goal)
                 heapq.heappush(priority_queue, (fscore[neighbor], neighbor))
 
-    return None, images
+    return path, images
 
 
 def render_astar(graph, start_point, end_point, fig, ax, canvas, fps=60):
