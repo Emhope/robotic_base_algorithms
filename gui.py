@@ -219,8 +219,8 @@ class App:
             self.curr_graph = create_ceil_graph_2d(self.map, self.step)
             self.canvas.draw()
             self.ax.clear()
-            start_point = ((start_point[0] // self.step) * self.step + self.step//2, (start_point[1] // self.step)* self.step + self.step//2)
-            end_point = ((end_point[0] // self.step) * self.step + self.step//2, (end_point[1] // self.step)* self.step + self.step//2)
+            # start_point = ((start_point[0] // self.step) * self.step + self.step//2, (start_point[1] // self.step)* self.step + self.step//2)
+            # end_point = ((end_point[0] // self.step) * self.step + self.step//2, (end_point[1] // self.step)* self.step + self.step//2)
             render_astar(self.curr_graph, start_point, end_point, self.fig, self.ax, self.canvas, fps=60)            
 
         if current_value == "Алгоритм Дейкстры":
@@ -239,8 +239,8 @@ class App:
                 #self.curr_graph = create_ceil_graph_2d(self.map, self.step)
                 self.canvas.draw()
                 self.ax.clear()
-                start_point = ((start_point[0] // self.step) * self.step + self.step//2, (start_point[1] // self.step)* self.step + self.step//2)
-                end_point = ((end_point[0] // self.step) * self.step + self.step//2, (end_point[1] // self.step)* self.step + self.step//2)
+                # start_point = ((start_point[0] // self.step) * self.step + self.step//2, (start_point[1] // self.step)* self.step + self.step//2)
+                # end_point = ((end_point[0] // self.step) * self.step + self.step//2, (end_point[1] // self.step)* self.step + self.step//2)
                 print('check')
                 render_dijkstra(self.curr_graph, start_point, end_point, self.fig, self.ax, self.canvas, fps=60)
 
