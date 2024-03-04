@@ -130,11 +130,11 @@ def astar(graph, start, goal):
         ax.clear()
 
         if curr_node == goal:
-            data = []
+            path = []
             while curr_node in came_from:
-                data.append(curr_node)
+                path.append(curr_node)
                 curr_node = came_from[curr_node]
-            return data, images
+            return path, images
         
         close_set.add(curr_node)
 
