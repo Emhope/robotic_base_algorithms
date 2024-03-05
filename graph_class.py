@@ -44,15 +44,15 @@ class Graph(dict):
         self.setdefault(vert, list())
  
     
-    def draw_graph(self, ax=None):
+    def draw_graph(self, edge_color='black', vert_color='blue', ax=None):
         if ax is None:
             fig, ax = plt.subplots()
         ax.set_xlim(0, 1000)
         ax.set_ylim(0, 1000)
         for vert in self:
             for n in self[vert]:
-                ax.plot([vert[0], n[0][0]], [vert[1], n[0][1]], 'k', 10)
-            ax.scatter(*vert, 100, 'b')
+                ax.plot([vert[0], n[0][0]], [vert[1], n[0][1]], markersize=10, color=edge_color)
+            ax.scatter(*vert, 100, color=vert_color)
 
 
     def remove_vertex(self, vertex):

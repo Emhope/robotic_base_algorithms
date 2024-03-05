@@ -15,6 +15,7 @@ from config_space import create_config_space
 from routers import render_dijkstra, render_astar
 from cache import Cache
 from ceil_decomp import create_ceil_graph_2d, create_ceil_graph_3d
+from test import render_rrt
 '''
 нач и кон точка, вороной, convert graphs (A* to voronoi/vis graph)
 '''
@@ -131,7 +132,7 @@ class App:
     
     def optionmenu_map_callback(self, choice):
         combs = {
-                "Карта": ["Алгоритм жука"],
+                "Карта": ["Алгоритм жука", "RRT", "RRT*", "RRT connect"],
                 "Расширенная карта": [""],
                 "Граф видимости": ["А*", "Алгоритм Дейкстры"],
                 "Диаграмма Вороного": ["А*", "Алгоритм Дейкстры"],
@@ -243,6 +244,11 @@ class App:
                 # end_point = ((end_point[0] // self.step) * self.step + self.step//2, (end_point[1] // self.step)* self.step + self.step//2)
                 print('check')
                 render_dijkstra(self.curr_graph, start_point, end_point, self.fig, self.ax, self.canvas, fps=60)
+
+        if current_value == "RRT":
+            start_point, end_point = self.get_entry_values()
+            render_rrt(self.map, start_point, end_point, self.ax, self.canvas)
+
 
         self.canvas.draw()
 
