@@ -2,6 +2,7 @@ import utils
 import numpy as np
 import skimage
 from graph_class import Graph
+from info_decorators import memoize
 
 
 def _find_verts_on_layer(map):
@@ -37,7 +38,7 @@ def _check_vis(vert1, vert2, map3d, thresh=10):
     return map_line[map_line!=0].shape[0] < thresh
     
 
-
+@memoize
 def create_graph(map3d):
     verts = find_verts(map3d)
     visual_graph = Graph()
@@ -53,8 +54,8 @@ def create_graph(map3d):
     return visual_graph   
 
 
-def add_vert_to_vis_graph(visual_graph:Graph, map3d, x, y):
-    vert = (0, y, x)
+def add_vert_to_vis_graph(visual_graph:Graph, map3d, x, y, z=0):
+    vert = (z, y, x)
     visual_graph.add_vert(vert)
     for n in visual_graph:
         if n == vert:
@@ -67,7 +68,7 @@ def add_vert_to_vis_graph(visual_graph:Graph, map3d, x, y):
 def vis_vis_graph(ax, visual_graph: Graph, map):
     for e in visual_graph.get_edges():
         v1, v2 = e
-        ax.plot([v1[2], v2[2]], [v1[1], v2[1]])
+        ax.plot([v1[2], v2[2]], [v1[1], v2[1]], color='gray')
     ax.imshow(map)
 
 
@@ -75,4 +76,4 @@ def vis_vis_graph_layer(ax, visual_graph: Graph, map, layer):
     for e in filter(lambda e: e[0][0] == e[1][0] == layer, visual_graph.get_edges()):
         v1, v2 = e
         ax.plot([v1[2], v2[2]], [v1[1], v2[1]])
-    ax.imshow(~map, cmap='gray')
+    ax.imshow(~map.astype(bool), cmap='gray')

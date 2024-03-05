@@ -6,15 +6,16 @@ import config
 import cv2
 import copy
 import voronoi
-from utils import minkowski
+from utils import minkowski, buffer_plot_and_get
 from graph_plotters import plotters as show_actions
 from routers import routers as route_actions
 from bug_2 import render_bug2
-from vis_graph import vis_vis_graph_layer, create_graph
+from vis_graph import vis_vis_graph_layer, create_graph, add_vert_to_vis_graph, vis_vis_graph
 from config_space import create_config_space
 from routers import render_dijkstra, render_astar
 from cache import Cache
 from ceil_decomp import create_ceil_graph_2d, create_ceil_graph_3d
+import pickle
 '''
 нач и кон точка, вороной, convert graphs (A* to voronoi/vis graph)
 '''
@@ -172,7 +173,9 @@ class App:
         if action == "Граф видимости":
             self.ax.clear()
             if self.vis_graph is None:
-                self.vis_graph = create_graph(self.config_space)
+                with open('test_vis_graph8.pkl', 'rb') as file:
+                    self.vis_graph = pickle.load(file)
+                #self.vis_graph = create_graph(self.config_space)
             self.curr_graph = copy.deepcopy(self.vis_graph)
             self.angle = self.get_entry_ang_step(self.entry_angle)
             map = self.config_space[self.get_entry_ang_step(self.entry_angle) % 180 // config.angle_step,: ,:]
@@ -198,7 +201,8 @@ class App:
                 self.ceil_graph = create_ceil_graph_2d(self.config_space[angle], self.get_entry_ang_step(self.entry_step))
             self.curr_graph = copy.deepcopy(self.ceil_graph)
             self.ax.imshow(~self.config_space[angle].astype(bool), cmap='gray')
-            self.curr_graph.draw_graph(self.ax)        
+            self.curr_graph.draw_graph(self.ax)    
+            
                     
         self.canvas.draw()
         
@@ -214,14 +218,36 @@ class App:
         
         if current_value == "А*":
             start_point, end_point = self.get_entry_values()
-            # if self.optionmenu.get() == "Клеточная декомпозиция":
             self.step = self.get_entry_ang_step(self.entry_step)
-            self.curr_graph = create_ceil_graph_2d(self.map, self.step)
+
+            if self.optionmenu_map.get() == "Клеточная декомпозиция":
+                #self.step = self.get_entry_ang_step(self.entry_step)
+                self.canvas.draw()
+                self.ax.clear()
+                start_point = ((start_point[0] // self.step) * self.step, (start_point[1] // self.step)* self.step)
+                end_point = ((end_point[0] // self.step) * self.step, (end_point[1] // self.step)* self.step)
+                render_astar(self.curr_graph, start_point, end_point, self.fig, self.ax, self.canvas, fps=60)
+                
+
+            elif self.optionmenu_map.get() == "Диаграмма Вороного":
+                self.curr_graph.add_endpoint(start_point)
+                self.curr_graph.add_endpoint(end_point)
+                self.curr_graph.draw_graph(self.ax)
+                self.canvas.draw()
+                self.ax.clear()
+                render_astar(self.curr_graph, start_point, end_point, self.fig, self.ax, self.canvas, fps=60)
+            
+            elif self.optionmenu_map.get() == "Граф видимости":
+                angle = self.get_entry_ang_step(self.entry_angle) % 180 // config.angle_step
+                add_vert_to_vis_graph(self.curr_graph, self.config_space, start_point[0], start_point[1], angle)
+                add_vert_to_vis_graph(self.curr_graph, self.config_space, end_point[0], end_point[1], angle)
+                #vis_vis_graph_layer(self.ax, self.curr_graph, self.config_space[angle], angle)
+                #vis_vis_graph(self.ax, self.curr_graph, self.map)
+                #back = buffer_plot_and_get(self.fig)
+                render_astar(self.curr_graph, (angle,)+start_point[::-1], (angle,)+end_point[::-1], self.fig, self.ax, self.canvas, fps=60)
+            
             self.canvas.draw()
-            self.ax.clear()
-            # start_point = ((start_point[0] // self.step) * self.step + self.step//2, (start_point[1] // self.step)* self.step + self.step//2)
-            # end_point = ((end_point[0] // self.step) * self.step + self.step//2, (end_point[1] // self.step)* self.step + self.step//2)
-            render_astar(self.curr_graph, start_point, end_point, self.fig, self.ax, self.canvas, fps=60)            
+
 
         if current_value == "Алгоритм Дейкстры":
             start_point, end_point = self.get_entry_values()            
@@ -239,10 +265,16 @@ class App:
                 #self.curr_graph = create_ceil_graph_2d(self.map, self.step)
                 self.canvas.draw()
                 self.ax.clear()
-                # start_point = ((start_point[0] // self.step) * self.step + self.step//2, (start_point[1] // self.step)* self.step + self.step//2)
-                # end_point = ((end_point[0] // self.step) * self.step + self.step//2, (end_point[1] // self.step)* self.step + self.step//2)
-                print('check')
+                start_point = ((start_point[0] // self.step) * self.step, (start_point[1] // self.step)* self.step)
+                end_point = ((end_point[0] // self.step) * self.step, (end_point[1] // self.step)* self.step)
                 render_dijkstra(self.curr_graph, start_point, end_point, self.fig, self.ax, self.canvas, fps=60)
+            
+            elif self.optionmenu_map.get() == "Граф видимости":
+                angle = self.get_entry_ang_step(self.entry_angle) % 180 // config.angle_step
+                add_vert_to_vis_graph(self.curr_graph, self.config_space, start_point[0], start_point[1], angle)
+                add_vert_to_vis_graph(self.curr_graph, self.config_space, end_point[0], end_point[1], angle)
+                #vis_vis_graph_layer(self.ax, self.curr_graph, self.map, angle)
+                render_dijkstra(self.curr_graph, (angle,)+start_point[::-1], (angle,)+end_point[::-1], self.fig, self.ax, self.canvas, fps=60)
 
         self.canvas.draw()
 
