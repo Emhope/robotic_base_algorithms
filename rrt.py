@@ -56,7 +56,7 @@ def check_goal(region, vert, goal):
     return np.linalg.norm(np.array(vert) - np.array(goal)) <= region
 
 
-def rrt(start, end, bin_map, region, max_distance, ax=None, max_its=300):
+def rrt(start, end, bin_map, region, max_distance, ax=None, max_its=20):
     
 
     region /= config.step
@@ -125,7 +125,7 @@ map = utils.fast_convolution(map, r)
 start = tuple(int(i) for i in input('старт: <x y> ').split())
 goal = tuple(int(i) for i in input('конец: <x y> ').split())
 
-
+fig, ax = plt.subplots()
 
 graph_gen = rrt(start, goal, map, region=1, max_distance=2, ax=ax)
 # graph_gen = rrt(start, goal, map, region=1, max_distance=2)
