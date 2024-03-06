@@ -7,8 +7,8 @@ import map_tools
 FREQ = 0.01
 
 class RRTconnect:
-    def __init__(self, data_path, step, threshold, max_iters=10000):
-        self.map = create_map(data_path) / 255
+    def __init__(self, map_num, step, threshold, max_iters=10000):
+        self.map = self.get_map(map_num)
         self.step = step
         self.threshold = threshold
         self.max_iters = max_iters
@@ -185,7 +185,7 @@ class RRTconnect:
         plt.show()
 
 if __name__ == '__main__':
-    rrt = RRTconnect(data_path='raw_data/examp2.txt', 
+    rrt = RRTconnect(map_num=int(input('номер карты (2 - 17): ')), 
                      step=100, 
                      threshold=100,
                      max_iters=1000)
