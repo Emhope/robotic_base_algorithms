@@ -38,8 +38,7 @@ def find_nearest(graph, point):
 
 def check_vis(vert1, vert2, bin_map, thresh=0):
     l = skimage.draw.line(*vert1, *vert2)
-    print(vert1, vert2)
-    print(l)
+
     map_line = bin_map[l[::-1]]
     return map_line[map_line!=0].shape[0] <= thresh
 
@@ -57,13 +56,25 @@ def check_goal(region, vert, goal):
     return np.linalg.norm(np.array(vert) - np.array(goal)) <= region
 
 
-def rrt(start, end, bin_map, region, max_distance, ax=None):
+def rrt(start, end, bin_map, region, max_distance, ax=None, max_its=300):
+    
+
     region /= config.step
     max_distance /= config.step
     graph = graph_class.Graph()
     goal =  False
     graph.add_vert(start, heritage=True)
+    surf = np.copy(bin_map)
+
+    its = 0
     while not goal:
+        if its > max_its:
+            its = 0
+            graph = graph_class.Graph()
+            goal =  False
+            graph.add_vert(start, heritage=True)
+            surf = np.copy(bin_map)
+
         rand_point = set_random_point(bin_map)
         nearest_vert = find_nearest(graph, rand_point)
         dist_to_point = np.linalg.norm(nearest_vert - np.array(rand_point)) # distance between nearest and current random point\
@@ -79,29 +90,45 @@ def rrt(start, end, bin_map, region, max_distance, ax=None):
             continue
 
         if check_goal(region, rand_point, end) and check_vis(rand_point, end, bin_map):
-            graph.add_edge(nearest_vert, rand_point, heritage=True, ax=ax)
+            graph.add_edge(nearest_vert, rand_point, heritage=True)
+            cv2.line(surf, rand_point, nearest_vert, 150, 4)
+            cv2.circle(surf, start, 20, 100, -1)
+            cv2.circle(surf, end, 20, 200, -1)
+            ax.clear()
+            ax.imshow(surf)
             yield graph, rand_point
-            graph.add_edge(rand_point, end, heritage=True, ax=ax)
+            graph.add_edge(rand_point, end, heritage=True)
+            cv2.line(surf, rand_point, end, 150, 4)
+            cv2.circle(surf, start, 20, 100, -1)
+            cv2.circle(surf, end, 20, 200, -1)
+            ax.clear()
+            ax.imshow(surf)
             yield graph, end
             break
 
-        graph.add_edge(nearest_vert, rand_point, heritage=True, ax=ax)
-    
+        graph.add_edge(nearest_vert, rand_point, heritage=True)
+        cv2.line(surf, rand_point, nearest_vert, 150, 4)
+        cv2.circle(surf, start, 20, 100, -1)
+        cv2.circle(surf, end, 20, 200, -1)
+        ax.clear()
+
+        ax.imshow(surf)
+        its += 1
         yield graph, rand_point
         if ax is not None:
             ax.plot()
 
-
-map = map_tools.create_map('raw_data/examp8.txt')
-start = (200, 600)
-goal = (800, 620)
+m_num = input('номер карты (2 - 17): ')
+map = map_tools.create_map(f'raw_data/examp{m_num}.txt')
+start = tuple(int(i) for i in input('старт: <x y>').split())
+goal = tuple(int(i) for i in input('конец: <x y>').split())
 
 
 fig, ax = plt.subplots()
 graph_gen = rrt(start, goal, map, region=1, max_distance=2, ax=ax)
 # graph_gen = rrt(start, goal, map, region=1, max_distance=2)
 
-ax.imshow(map)
+ax.imshow(cv2.cvtColor(map, cv2.COLOR_GRAY2RGB))
 
 for g, new_v in graph_gen:
     plt.show(block=False)

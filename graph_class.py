@@ -59,8 +59,8 @@ class Graph(dict):
     def draw_graph(self, ax=None, show_verts=True):
         if ax is None:
             fig, ax = plt.subplots()
-        ax.set_xlim(0, 1000)
-        ax.set_ylim(0, 1000)
+        # ax.set_xlim(0, 1000)
+        # ax.set_ylim(0, 1000)
         for vert in self:
             for n in self[vert]:
                 ax.plot([vert[0], n[0][0]], [vert[1], n[0][1]], 'red', 10)

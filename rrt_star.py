@@ -80,13 +80,20 @@ def get_cost(g: graph_class.Graph, start, end):
 
 
 def rrt_star(start, end, bin_map, region, max_distance, neigborhood_rad, ax=None):
+    surf = np.copy(bin_map)
     region /= config.step
     max_distance /= config.step
     neigborhood_rad /= config.step
     graph = graph_class.Graph()
     goal =  False
     graph.add_vert(start, heritage=True)
-    while not goal:
+    its = 1
+    while True:
+        if its == 0:
+            its = int(input('сколько еще итераций? '))
+            if its <= 0:
+                yield graph, rand_point
+                break
         rand_point = set_random_point(bin_map)
         nearest_vert = find_nearest(graph, rand_point)
         dist_to_point = np.linalg.norm(nearest_vert - np.array(rand_point)) # distance between nearest and current random point\
@@ -94,25 +101,32 @@ def rrt_star(start, end, bin_map, region, max_distance, neigborhood_rad, ax=None
             x_new = int(max_distance * rand_point[0] // dist_to_point)
             y_new = int(max_distance * rand_point[1] // dist_to_point)
             rand_point = (x_new, y_new)
+
         
         if not on_map(rand_point, bin_map.shape):
             continue
 
-        if (not check_vis(rand_point, nearest_vert, bin_map)) or (rand_point in graph):
+        if (not check_vis(rand_point, nearest_vert, bin_map)) or (rand_point in graph) or rand_point == end:
             continue
 
-        if check_goal(region, rand_point, end) and check_vis(rand_point, end, bin_map):
-            graph.add_edge(nearest_vert, rand_point, heritage=True, ax=ax)
+        if check_goal(region, rand_point, end) and check_vis(rand_point, end, bin_map) and not goal:
+            goal = True
+            graph.add_edge(nearest_vert, rand_point, heritage=True)
             yield graph, rand_point
-            graph.add_edge(rand_point, end, heritage=True, ax=ax)
+            
+            graph.add_edge(rand_point, end, heritage=True)
             yield graph, end
-            break
-
-        graph.add_edge(nearest_vert, rand_point, heritage=True, ax=ax)
+        
+        graph.add_edge(nearest_vert, rand_point, heritage=True)
+        cv2.line(surf, rand_point, nearest_vert, 150, 4)
+        cv2.circle(surf, start, 20, 100, -1)
+        cv2.circle(surf, end, 20, 200, -1)
+        ax.clear()
+        ax.imshow(surf)
 
         neigborhood = find_neighborhood(graph, rand_point, neigborhood_rad, bin_map)
         for n in neigborhood:
-            if n == nearest_vert or (not check_vis(n, rand_point, bin_map)):
+            if n == nearest_vert or (not check_vis(n, rand_point, bin_map)) or n == start or n == end:
                 continue
             old_cost = get_cost(graph, end=n, start=start)
             old_parent = graph.get_parent(n)
@@ -123,36 +137,40 @@ def rrt_star(start, end, bin_map, region, max_distance, neigborhood_rad, ax=None
                 graph.remove_edge(n, rand_point, hold=True)
                 graph.add_edge(old_parent, n, heritage=True)
             else:
-                
-                print(f'im gonna change {n} connect from {old_parent} to {rand_point}')
-
+                ax.clear()
+                surf = np.copy(bin_map)
+                s = time.perf_counter()
+                for e in graph.get_edges():
+                    cv2.line(surf, e[0], e[1], 150, 4)
+                cv2.circle(surf, start, 20, 100, -1)
+                cv2.circle(surf, end, 20, 200, -1)
+                ax.imshow(surf)
+        
+        if goal:
+            path = [end]
+            while path[-1] != start:
+                parent = g.get_parent(path[-1])
+                path.append(parent)
+            path = np.array(path).transpose()
+            ax.plot(path[0, :], path[1, :], color='green')
         yield graph, rand_point
+        its -= 1
+
         if ax is not None:
             ax.plot()
 
 
-map = map_tools.create_map('raw_data/examp8.txt')
-start = (200, 200)
-goal = (800, 800)
+m_num = input('номер карты (2 - 17): ')
+map = map_tools.create_map(f'raw_data/examp{m_num}.txt')
+start = tuple(int(i) for i in input('старт: <x y>').split())
+goal = tuple(int(i) for i in input('конец: <x y>').split())
 
 
 fig, ax = plt.subplots()
-graph_gen = rrt_star(start, goal, map, region=1, max_distance=2, neigborhood_rad=3)
+graph_gen = rrt_star(start, goal, map, region=1, max_distance=2, neigborhood_rad=2, ax=ax)
 
 ax.imshow(map)
 
 for g, new_v in graph_gen:
-    # g.draw_graph(ax=ax, show_verts=False)
-    # plt.show(block=False)
-    # plt.pause(0.01)
-    ...
-
-path = [new_v]
-while path[-1] != start:
-    parent = g.get_parent(path[-1])
-    path.append(parent)
-
-path = np.array(path).transpose()
-g.draw_graph(show_verts=False, ax=ax)
-ax.plot(path[0, :], path[1, :], color='green')
-plt.show()
+    plt.show(block=False)
+    plt.pause(0.01)
