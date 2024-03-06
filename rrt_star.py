@@ -162,11 +162,15 @@ def rrt_star(start, end, bin_map, region, max_distance, neigborhood_rad, ax=None
 
 m_num = input('номер карты (2 - 17): ')
 map = map_tools.create_map(f'raw_data/examp{m_num}.txt')
+
+fig, ax = plt.subplots()
+ax.imshow(map)
+
 start = tuple(int(i) for i in input('старт: <x y> ').split())
 goal = tuple(int(i) for i in input('конец: <x y> ').split())
 
 
-fig, ax = plt.subplots()
+
 graph_gen = rrt_star(start, goal, map, region=1, max_distance=2, neigborhood_rad=2, ax=ax)
 
 ax.imshow(map)
