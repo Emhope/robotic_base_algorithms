@@ -56,7 +56,7 @@ def check_goal(region, vert, goal):
     return np.linalg.norm(np.array(vert) - np.array(goal)) <= region
 
 
-def rrt(start, end, bin_map, region, max_distance, ax=None, max_its=300):
+def rrt(start, end, bin_map, region, max_distance, ax=None, max_its=20):
     
 
     region /= config.step
@@ -123,21 +123,6 @@ map = map_tools.create_map(f'raw_data/examp{m_num}.txt')
 
 fig, ax = plt.subplots()
 ax.imshow(map)
-
-def onclick(event):
-    if event.button == 1:
-        ...
-    elif event.button == 3:
-        ...
-
-
-def on_key(event):
-    print('Key pressed:', event.key == 'c')
-
-start = [0, 0]
-goal = [0, 0]
-onclick_id = fig.canvas.mpl_connect('button_press_event', lambda event: onclick)
-keyb_id = fig.canvas.mpl_connect('key_press_event', on_key)
 
 start = tuple(int(i) for i in input('старт: <x y> ').split())
 goal = tuple(int(i) for i in input('конец: <x y> ').split())
