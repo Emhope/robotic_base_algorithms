@@ -8,7 +8,6 @@ import utils
 import config_space
 import map_tools
 import voronoi
-from shapely.geometry import Polygon
 from pprint import pprint
 import graph_class
 from scipy.signal import convolve2d
