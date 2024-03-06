@@ -198,7 +198,9 @@ if __name__ == '__main__':
                      step=100, 
                      threshold=100,
                      max_iters=1000)
-    map = map_tools.create_map(f'raw_data/examp{m_num}.txt')
+
+    rrt.plot_map()
+    plt.show()
 
     start = tuple(int(i) for i in input('старт: <x y> ').split())
     goal = tuple(int(i) for i in input('конец: <x y> ').split())

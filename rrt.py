@@ -56,7 +56,7 @@ def check_goal(region, vert, goal):
     return np.linalg.norm(np.array(vert) - np.array(goal)) <= region
 
 
-def rrt(start, end, bin_map, region, max_distance, ax=None, max_its=20):
+def rrt(start, end, bin_map, region, max_distance, ax=None, max_its=50):
     
 
     region /= config.step
