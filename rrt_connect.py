@@ -18,10 +18,9 @@ class RRTconnect:
         map[map != 0] = 1
         return map.transpose()
 
-    
     def random_point(self):
         r_x = np.random.randint(0, self.map.shape[0])
-        r_y = np.random.randint(0, self.map.shape[0])
+        r_y = np.random.randint(0, self.map.shape[1])
         return np.array([r_x, r_y])
 
     def is_obstacle(self, point):
@@ -187,13 +186,12 @@ class RRTconnect:
         plt.show()
 
 if __name__ == '__main__':
-    rrt = RRTconnect(data_path='raw_data/examp2.txt', 
+    rrt = RRTconnect(map_num=2, 
                      step=100, 
                      threshold=100,
                      max_iters=1000)
     
     rrt.plot_map()
-    plt.show()
 
     start = tuple(int(i) for i in input('старт: <x y> ').split())
     goal = tuple(int(i) for i in input('конец: <x y> ').split())
