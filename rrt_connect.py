@@ -13,7 +13,7 @@ class RRTconnect:
         self.threshold = threshold
         self.max_iters = max_iters
 
-    def get_map(self, path, map_num=2):
+    def get_map(self, map_num):
         map = map_tools.create_map(f'raw_data/examp{map_num}.txt')
         map[map != 0] = 1
         return map.transpose()
@@ -187,11 +187,13 @@ class RRTconnect:
         plt.show()
 
 if __name__ == '__main__':
-    rrt = RRTconnect(data_path='raw_data/examp2.txt', 
+    m_num = input('номер карты (2 - 17): ')
+    
+    rrt = RRTconnect(map_num=m_num, 
                      step=100, 
                      threshold=100,
                      max_iters=1000)
-    
+    map = map_tools.create_map(f'raw_data/examp{m_num}.txt')
     rrt.plot_map()
     plt.show()
 
