@@ -8,6 +8,8 @@ class Graph(dict):
         super().__init__(*args, **kwargs)
         for k in self:
             self[k] = list(set(self[k]))
+        self.tree = dict()
+
 
     def get_edges(self):    
         edges = []
@@ -17,6 +19,7 @@ class Graph(dict):
                 edges.append(edge)
         return list(set(edges))
     
+
     def remove_edge(self, vert1, vert2):
         if vert1 in self:
             for n in self[vert1]:
@@ -35,24 +38,35 @@ class Graph(dict):
                     break
             
     
-    def add_edge(self, vert1, vert2):
+    def add_edge(self, vert1, vert2, heritage=False, ax=None, edge_color='red', vert_color='blue'):
         self[vert1] = list(set((self.get(vert1, list()) + [(vert2, utils.get_dist(vert1, vert2))])))
         self[vert2] = list(set((self.get(vert2, list()) + [(vert1, utils.get_dist(vert1, vert2))])))
 
+        if heritage:
+            self.tree[vert2] = vert1
 
-    def add_vert(self, vert):
+        if ax is not None:
+            ax.plot([vert1[0], vert2[0]], [vert1[1], vert2[1]], color=edge_color)
+
+
+    def add_vert(self, vert, heritage=False):
         self.setdefault(vert, list())
+        if heritage:
+            self.tree[vert] = vert
  
     
-    def draw_graph(self, edge_color='black', vert_color='blue', ax=None):
+    def draw_graph(self, ax=None, show_verts=True):
         if ax is None:
             fig, ax = plt.subplots()
         ax.set_xlim(0, 1000)
         ax.set_ylim(0, 1000)
         for vert in self:
             for n in self[vert]:
-                ax.plot([vert[0], n[0][0]], [vert[1], n[0][1]], markersize=10, color=edge_color)
-            ax.scatter(*vert, 100, color=vert_color)
+                ax.plot([vert[0], n[0][0]], [vert[1], n[0][1]], 'k', 10)
+            if len(self[vert]) == 1 and show_verts:
+                ax.scatter(*vert, 100, 'yellow')
+            elif show_verts:
+                ax.scatter(*vert, 100, 'b')
 
 
     def remove_vertex(self, vertex):
@@ -94,4 +108,16 @@ class Graph(dict):
             self.add_edge(line[0], point)
             self.add_edge(line[1], point)
             self.add_edge(new_p, point)
-        
+    
+    def get_parent(self, vert):
+        # min_ind = np.inf
+        # keys = list(self.keys())
+        # neighbors = [v for v, w in self[vert]]
+        # for i in keys:
+        #      if i in neighbors:
+        #          ind = keys.index(i)
+        #          if ind < min_ind:
+        #              min_ind = ind
+        # return keys[min_ind]
+        return self.tree[vert]
+    
