@@ -2,21 +2,22 @@ import numpy as np
 import time
 import cv2
 import matplotlib.pyplot as plt
+from map_tools import create_map
 
 FREQ = 0.01
 
 class RRTconnect:
-    def __init__(self, img_path, step, threshold, max_iters=10000):
-        self.map = self.get_map(img_path)
+    def __init__(self, data_path, step, threshold, max_iters=10000):
+        self.map = create_map(data_path) / 255
         self.step = step
         self.threshold = threshold
         self.max_iters = max_iters
 
-    def get_map(self, path):
-        img = cv2.imread(path, cv2.COLOR_BGR2GRAY)
-        img = np.int32(img / 255)
-        img = img.swapaxes(0, 1)
-        return img
+    # def get_map(self, path):
+    #     img = cv2.imread(path, cv2.COLOR_BGR2GRAY)
+    #     img = np.int32(img / 255)
+    #     img = img.swapaxes(0, 1)
+    #     return img
         
     # def get_map(self, path):
     #     map = np.zeros((10, 15))
@@ -190,13 +191,13 @@ class RRTconnect:
         plt.show()
 
 if __name__ == '__main__':
-    rrt = RRTconnect(img_path='tmp/test.png', 
+    rrt = RRTconnect(data_path='raw_data/examp2.txt', 
                      step=100, 
                      threshold=100,
                      max_iters=1000)
     
-    start = [100, 100]
-    goal = [500, 500]
+    start = [500, 200]
+    goal = [800, 500]
 
     path1, path2, tree1, tree2 = rrt.get_path(start, goal)
     rrt.plot_map()
