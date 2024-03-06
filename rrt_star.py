@@ -113,7 +113,7 @@ def rrt_star(start, end, bin_map, region, max_distance, neigborhood_rad, ax=None
             goal = True
             graph.add_edge(nearest_vert, rand_point, heritage=True)
             yield graph, rand_point
-            
+
             graph.add_edge(rand_point, end, heritage=True)
             yield graph, end
         
@@ -162,8 +162,8 @@ def rrt_star(start, end, bin_map, region, max_distance, neigborhood_rad, ax=None
 
 m_num = input('номер карты (2 - 17): ')
 map = map_tools.create_map(f'raw_data/examp{m_num}.txt')
-start = tuple(int(i) for i in input('старт: <x y>').split())
-goal = tuple(int(i) for i in input('конец: <x y>').split())
+start = tuple(int(i) for i in input('старт: <x y> ').split())
+goal = tuple(int(i) for i in input('конец: <x y> ').split())
 
 
 fig, ax = plt.subplots()
