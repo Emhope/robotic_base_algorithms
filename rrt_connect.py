@@ -9,22 +9,19 @@ import skimage
 FREQ = 0.01
 
 class RRTconnect:
-    def __init__(self, step, threshold, max_iters=10000):
-        self.map = self.get_map()
+    def __init__(self, map_num, step, threshold, max_iters=10000):
+        self.map = self.get_map(map_num)
         self.step = step
         self.threshold = threshold
         self.max_iters = max_iters
 
-    def get_map(self):
-        m_num = input('номер карты (2 - 17): ')
-        map = map_tools.create_map(f'raw_data/examp{m_num}.txt')
+    def get_map(self, map_num=2):
+        map = map_tools.create_map(f'raw_data/examp{map_num}.txt')
         r = np.ones((10, 10))
         map = utils.fast_convolution(map, r)
-        # path = './raw_data/rrt_img.png'
-        # img = cv2.imread(path, cv2.COLOR_BGR2GRAY)
-        # img = np.int32(img / 255)
-        map = map.swapaxes(0, 1)
-        return map
+        map[map != 0] = 1
+        return map.transpose()
+
     
     def random_point(self):
         r_x = np.random.randint(0, self.map.shape[0])
@@ -37,11 +34,6 @@ class RRTconnect:
             return False
         else:
             return True
-        
-    def check_vis(self, vert1, vert2, thresh=0):
-        l = skimage.draw.line(*vert1, *vert2)
-        map_line = self.map[l[::-1]]
-        return map_line[map_line!=0].shape[0] <= thresh
         
     def intersection(self, p1, p2):
         line_map = np.zeros((self.map.shape[0], self.map.shape[1]))
@@ -88,7 +80,7 @@ class RRTconnect:
             near_p1, num1 = self.nearest(rand_p, tree1) 
             new_p1 = self.extend_tree(near_p1, rand_p, self.step) 
 
-            if self.is_obstacle(new_p1) or self.check_vis(new_p1, near_p1):
+            if self.is_obstacle(new_p1) or self.intersection(new_p1, near_p1):
                 # self.plot_node(new_p1)
                 self.iters += 1
                 if len(tree2) < len(tree1):
@@ -100,7 +92,7 @@ class RRTconnect:
                 near_p2, num2 = self.nearest(new_p1, tree2) 
                 new_p2 = self.extend_tree(near_p2, new_p1, self.step)
 
-                if self.is_obstacle(new_p2) or self.check_vis(new_p2, near_p2):
+                if self.is_obstacle(new_p2) or self.intersection(new_p2, near_p2):
                     # self.plot_node(new_p2)
                     self.iters += 1
                     if len(tree2) < len(tree1):
@@ -111,7 +103,7 @@ class RRTconnect:
                     self.plot_tree(tree1, tree2)
                     new_new_p2 = self.extend_tree(new_p2, new_p1, self.step) 
 
-                    if self.is_obstacle(new_new_p2) or self.check_vis(new_new_p2, new_p2):
+                    if self.is_obstacle(new_new_p2) or self.intersection(new_new_p2, new_p2):
                         # self.plot_node(new_new_p2)
                         self.iters += 1
                         if len(tree2) < len(tree1):
@@ -124,7 +116,7 @@ class RRTconnect:
 
                         while self.distance(new_p2, new_p1) > self.threshold:
                             new_new_p2 = self.extend_tree(new_p2, new_p1, self.step) 
-                            if self.is_obstacle(new_new_p2) or self.check_vis(new_new_p2, new_p2):
+                            if self.is_obstacle(new_new_p2) or self.intersection(new_new_p2, new_p2):
                                 # self.plot_node(new_new_p2)
                                 self.iters += 1
                                 break
@@ -133,10 +125,12 @@ class RRTconnect:
                                 self.plot_tree(tree1, tree2)
                                 new_p2 = new_new_p2
                         else:
-                            tree2.append([new_p1[0], new_p1[1], len(tree2)-1])
-                            self.plot_tree(tree1, tree2)
-                            flag = True
-                            break
+                            if not self.intersection(new_new_p2, new_p1):
+                                tree2.append([new_p1[0], new_p1[1], len(tree2)-1])
+                                self.plot_tree(tree1, tree2)
+                                flag = True
+                                break
+                            
 
                 if len(tree2) < len(tree1):
                     tree1, tree2 = tree2, tree1
@@ -196,13 +190,16 @@ class RRTconnect:
         plt.plot(path2[:, 0], path2[:, 1], 'blue', linewidth=1)
         plt.show()
 
+
 if __name__ == '__main__':
-    rrt = RRTconnect(step=100, 
+    m_num = input('номер карты (2 - 17): ')
+    rrt = RRTconnect(map_num=m_num, 
+                     step=100, 
                      threshold=100,
                      max_iters=1000)
-    
-    start = [140, 400]
-    goal = [350, 600]
+
+    start = tuple(int(i) for i in input('старт: <x y> ').split())
+    goal = tuple(int(i) for i in input('конец: <x y> ').split())
 
     path1, path2, tree1, tree2 = rrt.get_path(start, goal)
     rrt.plot_map()

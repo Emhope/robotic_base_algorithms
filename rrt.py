@@ -126,7 +126,7 @@ start = tuple(int(i) for i in input('старт: <x y> ').split())
 goal = tuple(int(i) for i in input('конец: <x y> ').split())
 
 
-fig, ax = plt.subplots()
+
 graph_gen = rrt(start, goal, map, region=1, max_distance=2, ax=ax)
 # graph_gen = rrt(start, goal, map, region=1, max_distance=2)
 
