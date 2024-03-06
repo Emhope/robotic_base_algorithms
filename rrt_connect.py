@@ -27,7 +27,7 @@ class RRTconnect:
     
     def random_point(self):
         r_x = np.random.randint(0, self.map.shape[0])
-        r_y = np.random.randint(0, self.map.shape[0])
+        r_y = np.random.randint(0, self.map.shape[1])
         return np.array([r_x, r_y])
 
     def is_obstacle(self, point):
@@ -127,10 +127,12 @@ class RRTconnect:
                                 self.plot_tree(tree1, tree2)
                                 new_p2 = new_new_p2
                         else:
-                            tree2.append([new_p1[0], new_p1[1], len(tree2)-1])
-                            self.plot_tree(tree1, tree2)
-                            flag = True
-                            break
+                            if not self.intersection(new_new_p2, new_p1):
+                                tree2.append([new_p1[0], new_p1[1], len(tree2)-1])
+                                self.plot_tree(tree1, tree2)
+                                flag = True
+                                break
+                            
 
                 if len(tree2) < len(tree1):
                     tree1, tree2 = tree2, tree1
@@ -191,7 +193,7 @@ class RRTconnect:
         plt.show()
 
 if __name__ == '__main__':
-    rrt = RRTconnect(data_path='raw_data/examp2.txt', 
+    rrt = RRTconnect(data_path='raw_data/examp4.txt', 
                      step=100, 
                      threshold=100,
                      max_iters=1000)
