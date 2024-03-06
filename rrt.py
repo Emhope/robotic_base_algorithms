@@ -99,15 +99,16 @@ goal = (800, 620)
 
 
 fig, ax = plt.subplots()
-# graph_gen = rrt(start, goal, map, region=1, max_distance=2, ax=ax)
-graph_gen = rrt(start, goal, map, region=1, max_distance=2)
+graph_gen = rrt(start, goal, map, region=1, max_distance=2, ax=ax)
+# graph_gen = rrt(start, goal, map, region=1, max_distance=2)
 
 ax.imshow(map)
 
 for g, new_v in graph_gen:
-    # plt.show(block=False)
-    # plt.pause(0.01)
-    ...
+    plt.show(block=False)
+    plt.pause(0.01)
+
+    
 
 path = [new_v]
 while path[-1] != start:

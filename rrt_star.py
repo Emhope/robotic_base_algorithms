@@ -49,7 +49,6 @@ def find_neighborhood(graph, point, r, map):
 def check_vis(vert1, vert2, bin_map, thresh=0):
     l = skimage.draw.line(*vert1, *vert2)
     map_line = bin_map[l[::-1]]
-    print(vert1, vert2)
     return map_line[map_line!=0].shape[0] <= thresh
 
 
@@ -155,5 +154,6 @@ while path[-1] != start:
     path.append(parent)
 
 path = np.array(path).transpose()
-plt.plot(path[0, :], path[1, :])
+g.draw_graph(show_verts=False, ax=ax)
+ax.plot(path[0, :], path[1, :], color='green')
 plt.show()
