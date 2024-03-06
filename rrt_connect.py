@@ -2,32 +2,26 @@ import numpy as np
 import time
 import cv2
 import matplotlib.pyplot as plt
-from map_tools import create_map
+import map_tools
 
 FREQ = 0.01
 
 class RRTconnect:
-    def __init__(self, data_path, step, threshold, max_iters=10000):
-        self.map = create_map(data_path) / 255
+    def __init__(self, map_num, step, threshold, max_iters=10000):
+        self.map = self.get_map(map_num)
         self.step = step
         self.threshold = threshold
         self.max_iters = max_iters
 
-    # def get_map(self, path):
-    #     img = cv2.imread(path, cv2.COLOR_BGR2GRAY)
-    #     img = np.int32(img / 255)
-    #     img = img.swapaxes(0, 1)
-    #     return img
-        
-    # def get_map(self, path):
-    #     map = np.zeros((10, 15))
-    #     map[1:6, 3:6] = 1
-    #     map = map.swapaxes(0, 1)
-    #     return map
+    def get_map(self, path, map_num=2):
+        map = map_tools.create_map(f'raw_data/examp{map_num}.txt')
+        map[map != 0] = 1
+        return map.transpose()
+
     
     def random_point(self):
         r_x = np.random.randint(0, self.map.shape[0])
-        r_y = np.random.randint(0, self.map.shape[1])
+        r_y = np.random.randint(0, self.map.shape[0])
         return np.array([r_x, r_y])
 
     def is_obstacle(self, point):
@@ -193,13 +187,16 @@ class RRTconnect:
         plt.show()
 
 if __name__ == '__main__':
-    rrt = RRTconnect(data_path='raw_data/examp4.txt', 
+    rrt = RRTconnect(data_path='raw_data/examp2.txt', 
                      step=100, 
                      threshold=100,
                      max_iters=1000)
     
-    start = [500, 200]
-    goal = [800, 500]
+    rrt.plot_map()
+    plt.show()
+
+    start = tuple(int(i) for i in input('старт: <x y> ').split())
+    goal = tuple(int(i) for i in input('конец: <x y> ').split())
 
     path1, path2, tree1, tree2 = rrt.get_path(start, goal)
     rrt.plot_map()

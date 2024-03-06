@@ -120,11 +120,15 @@ def rrt(start, end, bin_map, region, max_distance, ax=None, max_its=300):
 
 m_num = input('номер карты (2 - 17): ')
 map = map_tools.create_map(f'raw_data/examp{m_num}.txt')
+
+fig, ax = plt.subplots()
+ax.imshow(map)
+
 start = tuple(int(i) for i in input('старт: <x y> ').split())
 goal = tuple(int(i) for i in input('конец: <x y> ').split())
 
 
-fig, ax = plt.subplots()
+
 graph_gen = rrt(start, goal, map, region=1, max_distance=2, ax=ax)
 # graph_gen = rrt(start, goal, map, region=1, max_distance=2)
 
