@@ -37,11 +37,19 @@ def find_nearest(graph, point):
     return vertices[temp_dist.index(min(temp_dist))]
 
 
+def find_neighborhood(graph, point, r, map):
+    n = []
+    for v in graph:
+        if v != point:
+            if check_goal(r, point, v) and check_vis(v ,point, map):
+                n.append(v)
+    return n
+
+
 def check_vis(vert1, vert2, bin_map, thresh=0):
     l = skimage.draw.line(*vert1, *vert2)
-    print(vert1, vert2)
-    print(l)
     map_line = bin_map[l[::-1]]
+    print(vert1, vert2)
     return map_line[map_line!=0].shape[0] <= thresh
 
 
@@ -50,17 +58,33 @@ def set_random_point(bin_map):
     return point
 
 
-def on_map(v, map_shape):
-    return (0 <= v[0] < map_shape[1]) and (0 <= v[1] < map_shape[0])
-
-
 def check_goal(region, vert, goal):
     return np.linalg.norm(np.array(vert) - np.array(goal)) <= region
 
 
-def rrt(start, end, bin_map, region, max_distance, ax=None):
+def on_map(v, map_shape):
+    return (0 <= v[0] < map_shape[1]) and (0 <= v[1] < map_shape[0])
+
+
+def get_cost(g: graph_class.Graph, start, end):
+    path = [end]
+    cost = 0
+    while path[-1] != start:
+        try:
+            parent = g.get_parent(path[-1])
+        except:
+            return np.inf
+        if parent in path:
+            return np.inf
+        path.append(parent)
+        cost += np.linalg.norm(np.array(path[-1])-np.array(path[-2]))
+    return cost
+
+
+def rrt_star(start, end, bin_map, region, max_distance, neigborhood_rad, ax=None):
     region /= config.step
     max_distance /= config.step
+    neigborhood_rad /= config.step
     graph = graph_class.Graph()
     goal =  False
     graph.add_vert(start, heritage=True)
@@ -87,24 +111,40 @@ def rrt(start, end, bin_map, region, max_distance, ax=None):
             break
 
         graph.add_edge(nearest_vert, rand_point, heritage=True, ax=ax)
-    
+
+        neigborhood = find_neighborhood(graph, rand_point, neigborhood_rad, bin_map)
+        for n in neigborhood:
+            if n == nearest_vert or (not check_vis(n, rand_point, bin_map)):
+                continue
+            old_cost = get_cost(graph, end=n, start=start)
+            old_parent = graph.get_parent(n)
+            graph.remove_edge(n, old_parent, hold=True)
+            graph.add_edge(rand_point, n, heritage=True)
+            new_cost = get_cost(graph, end=n, start=start)
+            if new_cost >= old_cost:
+                graph.remove_edge(n, rand_point, hold=True)
+                graph.add_edge(old_parent, n, heritage=True)
+            else:
+                
+                print(f'im gonna change {n} connect from {old_parent} to {rand_point}')
+
         yield graph, rand_point
         if ax is not None:
             ax.plot()
 
 
 map = map_tools.create_map('raw_data/examp8.txt')
-start = (200, 600)
-goal = (800, 620)
+start = (200, 200)
+goal = (800, 800)
 
 
 fig, ax = plt.subplots()
-# graph_gen = rrt(start, goal, map, region=1, max_distance=2, ax=ax)
-graph_gen = rrt(start, goal, map, region=1, max_distance=2)
+graph_gen = rrt_star(start, goal, map, region=1, max_distance=2, neigborhood_rad=3)
 
 ax.imshow(map)
 
 for g, new_v in graph_gen:
+    # g.draw_graph(ax=ax, show_verts=False)
     # plt.show(block=False)
     # plt.pause(0.01)
     ...

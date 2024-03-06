@@ -20,12 +20,12 @@ class Graph(dict):
         return list(set(edges))
     
 
-    def remove_edge(self, vert1, vert2):
+    def remove_edge(self, vert1, vert2, hold=False):
         if vert1 in self:
             for n in self[vert1]:
                 if vert2 == n[0]:
                     self[vert1].remove(n)
-                    if not self[vert1]:
+                    if (not self[vert1]) and (not hold):
                         self.remove_vertex(vert1)
                     break
         
@@ -33,12 +33,13 @@ class Graph(dict):
             for n in self[vert2]:
                 if vert1 == n[0]:
                     self[vert2].remove(n)
-                    if not self[vert2]:
+                    if not (not self[vert2]) and (not hold):
                         self.remove_vertex(vert2)
                     break
             
     
     def add_edge(self, vert1, vert2, heritage=False, ax=None, edge_color='red', vert_color='blue'):
+        '''vert1 - parent for vert2 if herigate True'''
         self[vert1] = list(set((self.get(vert1, list()) + [(vert2, utils.get_dist(vert1, vert2))])))
         self[vert2] = list(set((self.get(vert2, list()) + [(vert1, utils.get_dist(vert1, vert2))])))
 
@@ -62,7 +63,7 @@ class Graph(dict):
         ax.set_ylim(0, 1000)
         for vert in self:
             for n in self[vert]:
-                ax.plot([vert[0], n[0][0]], [vert[1], n[0][1]], 'k', 10)
+                ax.plot([vert[0], n[0][0]], [vert[1], n[0][1]], 'red', 10)
             if len(self[vert]) == 1 and show_verts:
                 ax.scatter(*vert, 100, 'yellow')
             elif show_verts:
@@ -109,6 +110,13 @@ class Graph(dict):
             self.add_edge(line[1], point)
             self.add_edge(new_p, point)
     
+
+    def get_weight(self, vert1, vert2):
+        for v in self[vert1]:
+            if v[0] == vert2:
+                return v[1]
+
+
     def get_parent(self, vert):
         # min_ind = np.inf
         # keys = list(self.keys())

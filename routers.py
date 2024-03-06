@@ -139,6 +139,9 @@ def astar(graph, start, goal, background):
     
     while priority_queue:
         curr_node = heapq.heappop(priority_queue)[1]
+        print(f'priority_queue: {priority_queue}')
+        print(f'gscore: {gscore[curr_node]}')
+        print(f'fscore: {fscore[curr_node]}')
         print(curr_node)
         pq_nodes = [x[1] for x in priority_queue]
         if background is not None:
@@ -199,7 +202,7 @@ def astar(graph, start, goal, background):
             if neighbor in close_set and pre_g_score >= gscore.get(neighbor, 0):
                 continue
  
-            if  pre_g_score < gscore.get(neighbor, 0) or neighbor not in [i[1]for i in priority_queue]:
+            if  pre_g_score < gscore.get(neighbor, 0) and neighbor not in [i[1]for i in priority_queue]:
                 came_from[neighbor] = curr_node
                 gscore[neighbor] = pre_g_score
                 fscore[neighbor] = pre_g_score + _heuristic(neighbor, goal)
