@@ -127,7 +127,7 @@ goal = tuple(int(i) for i in input('конец: <x y> ').split())
 
 fig, ax = plt.subplots()
 
-graph_gen = rrt(start, goal, map, region=1, max_distance=2, ax=ax)
+graph_gen = rrt(start, goal, map, region=1, max_distance=2, ax=ax, max_its=500)
 # graph_gen = rrt(start, goal, map, region=1, max_distance=2)
 
 ax.imshow(cv2.cvtColor(map, cv2.COLOR_GRAY2RGB))
