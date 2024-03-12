@@ -7,3 +7,4 @@ test*
 astar.ipynb
 test.ipynb
 rrt test.ipynb
+*.json
