@@ -2,7 +2,9 @@ import numpy as np
 import time
 import cv2
 import matplotlib.pyplot as plt
-import map_tools
+import map_tools, utils
+import skimage
+
 
 FREQ = 0.01
 
@@ -15,6 +17,8 @@ class RRTconnect:
 
     def get_map(self, map_num):
         map = map_tools.create_map(f'raw_data/examp{map_num}.txt')
+        r = np.ones((10, 10))
+        map = utils.fast_convolution(map, r)
         map[map != 0] = 1
         return map.transpose()
 
@@ -185,6 +189,7 @@ class RRTconnect:
         plt.plot(path2[:, 0], path2[:, 1], 'blue', linewidth=1)
         plt.show()
 
+
 if __name__ == '__main__':
     m_num = input('номер карты (2 - 17): ')
     
@@ -192,7 +197,7 @@ if __name__ == '__main__':
                      step=100, 
                      threshold=100,
                      max_iters=1000)
-    map = map_tools.create_map(f'raw_data/examp{m_num}.txt')
+
     rrt.plot_map()
 
     start = tuple(int(i) for i in input('старт: <x y> ').split())

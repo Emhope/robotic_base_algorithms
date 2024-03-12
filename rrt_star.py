@@ -22,7 +22,12 @@ import copy
 import random
 import io
 import PIL
+from progress.bar import IncrementalBar
 
+
+
+def get_dist(p1, p2):
+    return ((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
 
 
 def find_nearest(graph, point):
@@ -43,6 +48,23 @@ def find_neighborhood(graph, point, r, map):
             if check_goal(r, point, v) and check_vis(v ,point, map):
                 n.append(v)
     return n
+
+
+def best_neighbor(g: graph_class.Graph, point, r):
+    best_n, best_cost = None, np.inf
+    for n in g:
+        d = get_cost(g, g.root, n)
+        point_dist = get_dist(n, point)
+        n_cost = d + point_dist
+        if point_dist > r:
+            continue
+        if n_cost < best_cost:
+            best_cost = n_cost
+            best_n = n
+    if best_n is None:
+        return g.root
+    return best_n
+
 
 
 def check_vis(vert1, vert2, bin_map, thresh=0):
@@ -79,7 +101,7 @@ def get_cost(g: graph_class.Graph, start, end):
     return cost
 
 
-def rrt_star(start, end, bin_map, region, max_distance, neigborhood_rad, ax=None):
+def rrt_star(start, end, bin_map, region, max_distance, neigborhood_rad, ax=None, vis=True):
     surf = np.copy(bin_map)
     region /= config.step
     max_distance /= config.step
@@ -87,15 +109,38 @@ def rrt_star(start, end, bin_map, region, max_distance, neigborhood_rad, ax=None
     graph = graph_class.Graph()
     goal =  False
     graph.add_vert(start, heritage=True)
-    its = 1
+    its = 0
+    s = time.perf_counter()
     while True:
         if its == 0:
+            
+            ax.clear()
+            surf = np.copy(bin_map)
+            for e in graph.get_edges():
+                cv2.line(surf, e[0], e[1], 150, 4)
+            cv2.circle(surf, start, 20, 100, -1)
+            cv2.circle(surf, end, 20, 200, -1)
+            ax.imshow(surf)
+
+            if goal:
+                path = [end]
+                while path[-1] != start:
+                    parent = g.get_parent(path[-1])
+                    path.append(parent)
+                path = np.array(path).transpose()
+                ax.plot(path[0, :], path[1, :], color='red')
+
+            print()
+            print(time.perf_counter() - s)
             its = int(input('сколько еще итераций? '))
+            s = time.perf_counter()
             if its <= 0:
                 yield graph, rand_point
                 break
+            bar = IncrementalBar('Countdown', max = its)
+
         rand_point = set_random_point(bin_map)
-        nearest_vert = find_nearest(graph, rand_point)
+        nearest_vert = best_neighbor(graph, rand_point, neigborhood_rad)
         dist_to_point = np.linalg.norm(nearest_vert - np.array(rand_point)) # distance between nearest and current random point\
         if dist_to_point > max_distance:
             x_new = int(max_distance * rand_point[0] // dist_to_point)
@@ -108,21 +153,31 @@ def rrt_star(start, end, bin_map, region, max_distance, neigborhood_rad, ax=None
 
         if (not check_vis(rand_point, nearest_vert, bin_map)) or (rand_point in graph) or rand_point == end:
             continue
-
-        if check_goal(region, rand_point, end) and check_vis(rand_point, end, bin_map) and not goal:
-            goal = True
-            graph.add_edge(nearest_vert, rand_point, heritage=True)
-            yield graph, rand_point
-
-            graph.add_edge(rand_point, end, heritage=True)
-            yield graph, end
         
         graph.add_edge(nearest_vert, rand_point, heritage=True)
-        cv2.line(surf, rand_point, nearest_vert, 150, 4)
-        cv2.circle(surf, start, 20, 100, -1)
-        cv2.circle(surf, end, 20, 200, -1)
-        ax.clear()
-        ax.imshow(surf)
+
+        if check_goal(region, rand_point, end) and check_vis(rand_point, end, bin_map):
+            if not goal:
+                graph.add_edge(rand_point, end, heritage=True)
+                goal = True
+            else:
+                old_dist = get_cost(graph, end=end, start=start)
+                old_parent = graph.get_parent(end)
+                new_dist = get_cost(graph, end=rand_point, start=start) + get_dist(rand_point, end)
+                if new_dist < old_dist:
+                    graph.remove_edge(end, old_parent, hold=True)
+                    graph.add_edge(rand_point, end, heritage=True)
+            
+            
+            yield graph, end
+        
+        
+        if vis:
+            cv2.line(surf, rand_point, nearest_vert, 150, 4)
+            cv2.circle(surf, start, 20, 100, -1)
+            cv2.circle(surf, end, 20, 200, -1)
+            ax.clear()
+            ax.imshow(surf)
 
         neigborhood = find_neighborhood(graph, rand_point, neigborhood_rad, bin_map)
         for n in neigborhood:
@@ -136,42 +191,41 @@ def rrt_star(start, end, bin_map, region, max_distance, neigborhood_rad, ax=None
             if new_cost >= old_cost:
                 graph.remove_edge(n, rand_point, hold=True)
                 graph.add_edge(old_parent, n, heritage=True)
-            else:
+            elif vis:
                 ax.clear()
                 surf = np.copy(bin_map)
-                s = time.perf_counter()
                 for e in graph.get_edges():
                     cv2.line(surf, e[0], e[1], 150, 4)
                 cv2.circle(surf, start, 20, 100, -1)
                 cv2.circle(surf, end, 20, 200, -1)
                 ax.imshow(surf)
         
-        if goal:
+        if goal and vis:
+            
             path = [end]
             while path[-1] != start:
                 parent = g.get_parent(path[-1])
                 path.append(parent)
             path = np.array(path).transpose()
-            ax.plot(path[0, :], path[1, :], color='green')
+            ax.plot(path[0, :], path[1, :], color='red')
         yield graph, rand_point
         its -= 1
+        bar.next()
 
-        if ax is not None:
+        if vis:
             ax.plot()
 
 
 m_num = input('номер карты (2 - 17): ')
 map = map_tools.create_map(f'raw_data/examp{m_num}.txt')
-
-fig, ax = plt.subplots()
-ax.imshow(map)
-
+r = np.ones((10, 10))
+map = utils.fast_convolution(map, r)
 start = tuple(int(i) for i in input('старт: <x y> ').split())
 goal = tuple(int(i) for i in input('конец: <x y> ').split())
 
+fig, ax = plt.subplots()
 
-
-graph_gen = rrt_star(start, goal, map, region=1, max_distance=2, neigborhood_rad=2, ax=ax)
+graph_gen = rrt_star(start, goal, map, region=1, max_distance=3, neigborhood_rad=2.5, ax=ax, vis=True)
 
 ax.imshow(map)
 

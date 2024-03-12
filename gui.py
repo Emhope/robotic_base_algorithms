@@ -276,6 +276,9 @@ class App:
                 #vis_vis_graph_layer(self.ax, self.curr_graph, self.map, angle)
                 render_dijkstra(self.curr_graph, (angle,)+start_point[::-1], (angle,)+end_point[::-1], self.fig, self.ax, self.canvas, fps=60)
 
+
+
+
         self.canvas.draw()
 
 

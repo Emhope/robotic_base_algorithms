@@ -100,21 +100,19 @@ def dijkstra(graph, start, goal):
 
 def render_dijkstra(graph, start_point, end_point, fig, ax, canvas, fps=60):
     _, _, images = dijkstra(graph, start_point, end_point)
-    print('start ani')
     def animate(i):
         img.set_array(images[i])
         canvas.draw()
         return img,
     img = ax.imshow(images[0], animated=True, cmap='gray')
     ani = animation.FuncAnimation(fig, animate, frames=len(images), interval=100, repeat=True, blit=True)  
-    print('end ani')  
 
 
 
 def _heuristic(node1, node2):
     if len(node1) == 2:
         x1, y1 = node1
-        x2, y2 = node2
+        x2, y2 = node2 
         return np.sqrt((x1-x2)**2 + (y1-y2)**2)
     else:
         res = 0
@@ -196,9 +194,10 @@ def astar(graph, start, goal, background):
         
         close_set.add(curr_node)
 
-        for neighbor, _ in graph[curr_node]:
-            pre_g_score = gscore[curr_node] + _heuristic(curr_node, neighbor)
- 
+        for neighbor, weight in graph[curr_node]:
+            pre_g_score = gscore[curr_node] + weight
+            print(f'node: {neighbor} weight: {weight} pre_g: {pre_g_score} last: {gscore.get(neighbor, 0)}')
+            
             if neighbor in close_set and pre_g_score >= gscore.get(neighbor, 0):
                 continue
  
@@ -206,6 +205,7 @@ def astar(graph, start, goal, background):
                 came_from[neighbor] = curr_node
                 gscore[neighbor] = pre_g_score
                 fscore[neighbor] = pre_g_score + _heuristic(neighbor, goal)
+                print(f'added node: {neighbor} weight: {weight} g: {pre_g_score} f: {fscore[neighbor]}')
                 heapq.heappush(priority_queue, (fscore[neighbor], neighbor))
 
     return path, images

@@ -9,6 +9,7 @@ class Graph(dict):
         for k in self:
             self[k] = list(set(self[k]))
         self.tree = dict()
+        self.root = None
 
 
     def get_edges(self):    
@@ -45,6 +46,8 @@ class Graph(dict):
 
         if heritage:
             self.tree[vert2] = vert1
+            if self.root is None:
+                self.root = vert1
 
         if ax is not None:
             ax.plot([vert1[0], vert2[0]], [vert1[1], vert2[1]], color=edge_color)
@@ -54,6 +57,8 @@ class Graph(dict):
         self.setdefault(vert, list())
         if heritage:
             self.tree[vert] = vert
+            if self.root is None:
+                self.root = vert
  
     
     def draw_graph(self, ax=None, show_verts=True):

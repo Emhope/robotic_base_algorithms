@@ -56,7 +56,7 @@ def check_goal(region, vert, goal):
     return np.linalg.norm(np.array(vert) - np.array(goal)) <= region
 
 
-def rrt(start, end, bin_map, region, max_distance, ax=None, max_its=20):
+def rrt(start, end, bin_map, region, max_distance, ax=None, max_its=50):
     
 
     region /= config.step
@@ -120,16 +120,14 @@ def rrt(start, end, bin_map, region, max_distance, ax=None, max_its=20):
 
 m_num = input('номер карты (2 - 17): ')
 map = map_tools.create_map(f'raw_data/examp{m_num}.txt')
-
-fig, ax = plt.subplots()
-ax.imshow(map)
-
+r = np.ones((10, 10))
+map = utils.fast_convolution(map, r)
 start = tuple(int(i) for i in input('старт: <x y> ').split())
 goal = tuple(int(i) for i in input('конец: <x y> ').split())
 
+fig, ax = plt.subplots()
 
-
-graph_gen = rrt(start, goal, map, region=1, max_distance=2, ax=ax)
+graph_gen = rrt(start, goal, map, region=1, max_distance=2, ax=ax, max_its=500)
 # graph_gen = rrt(start, goal, map, region=1, max_distance=2)
 
 ax.imshow(cv2.cvtColor(map, cv2.COLOR_GRAY2RGB))
@@ -146,5 +144,5 @@ while path[-1] != start:
     path.append(parent)
 
 path = np.array(path).transpose()
-plt.plot(path[0, :], path[1, :])
+plt.plot(path[0, :], path[1, :], color='red')
 plt.show()
