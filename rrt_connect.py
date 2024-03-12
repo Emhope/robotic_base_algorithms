@@ -36,7 +36,7 @@ class RRTconnect:
         
     def intersection(self, p1, p2):
         line_map = np.zeros((self.map.shape[0], self.map.shape[1]))
-        line_map = cv2.line(line_map, [p1[1], p1[0]], [p2[1], p2[0]], 1)
+        line_map = cv2.line(line_map, (p1[1], p1[0]), (p2[1], p2[0]), 1)
         if np.max(line_map * self.map) == 1:
             return True
         return False
