@@ -55,8 +55,8 @@ def best_neighbor(g: graph_class.Graph, point, r, goal):
     for n in g:
         d = get_cost(g, g.root, n)
         point_dist = get_dist(n, point)
-        goal_dist = get_dist(n, goal)
-        n_cost = d + point_dist + goal_dist
+        #goal_dist = get_dist(n, goal)
+        n_cost = d + point_dist
         if point_dist > r:
             continue
         if n_cost < best_cost:
