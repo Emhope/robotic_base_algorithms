@@ -162,7 +162,7 @@ def rrt_star(start, end, bin_map, region, max_distance, neigborhood_rad, ax=None
                 graph.add_edge(rand_point, end, heritage=True)
                 goal = True
             else:
-                old_dist = get_cost(graph, end=end, start=start)
+                old_dist = get_cost(graph, end=end, start=start) + get_dist()
                 old_parent = graph.get_parent(end)
                 new_dist = get_cost(graph, end=rand_point, start=start) + get_dist(rand_point, end)
                 if new_dist < old_dist:
@@ -184,11 +184,11 @@ def rrt_star(start, end, bin_map, region, max_distance, neigborhood_rad, ax=None
         for n in neigborhood:
             if n == nearest_vert or (not check_vis(n, rand_point, bin_map)) or n == start or n == end:
                 continue
-            old_cost = get_cost(graph, end=n, start=start)
+            old_cost = get_cost(graph, end=n, start=start) + get_dist(n, end)
             old_parent = graph.get_parent(n)
             graph.remove_edge(n, old_parent, hold=True)
             graph.add_edge(rand_point, n, heritage=True)
-            new_cost = get_cost(graph, end=n, start=start)
+            new_cost = get_cost(graph, end=n, start=start) + get_dist(rand_point, end)
             if new_cost >= old_cost:
                 graph.remove_edge(n, rand_point, hold=True)
                 graph.add_edge(old_parent, n, heritage=True)
@@ -226,7 +226,7 @@ goal = tuple(int(i) for i in input('конец: <x y> ').split())
 
 fig, ax = plt.subplots()
 
-graph_gen = rrt_star(start, goal, map, region=1, max_distance=3, neigborhood_rad=2.5, ax=ax, vis=True)
+graph_gen = rrt_star(start, goal, map, region=1, max_distance=3, neigborhood_rad=10, ax=ax, vis=True)
 
 ax.imshow(map)
 
