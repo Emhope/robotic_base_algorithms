@@ -50,12 +50,13 @@ def find_neighborhood(graph, point, r, map):
     return n
 
 
-def best_neighbor(g: graph_class.Graph, point, r):
+def best_neighbor(g: graph_class.Graph, point, r, goal):
     best_n, best_cost = None, np.inf
     for n in g:
         d = get_cost(g, g.root, n)
         point_dist = get_dist(n, point)
-        n_cost = d + point_dist
+        goal_dist = get_dist(n, goal)
+        n_cost = d + point_dist + goal_dist
         if point_dist > r:
             continue
         if n_cost < best_cost:
@@ -140,7 +141,7 @@ def rrt_star(start, end, bin_map, region, max_distance, neigborhood_rad, ax=None
             bar = IncrementalBar('Countdown', max = its)
 
         rand_point = set_random_point(bin_map)
-        nearest_vert = best_neighbor(graph, rand_point, neigborhood_rad)
+        nearest_vert = best_neighbor(graph, rand_point, neigborhood_rad, goal=end)
         dist_to_point = np.linalg.norm(nearest_vert - np.array(rand_point)) # distance between nearest and current random point\
         if dist_to_point > max_distance:
             x_new = int(max_distance * rand_point[0] // dist_to_point)
